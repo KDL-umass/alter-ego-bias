@@ -83,7 +83,7 @@ generate.graph <- function(graph.params) {
   }
   
   if(graph.type == "sbm") { 
-    edg <- read.csv(paste0("binary_networks/nets/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
+    edg <- read.csv(paste0("graphs/synthetic/sbms/nets/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
     edg <- as.matrix(edg)
     g <- graph_from_adjacency_matrix(edg, mode="undirected")
     
@@ -105,13 +105,13 @@ generate.graph <- function(graph.params) {
   }
   
   if(graph.type == "polyblogs") { 
-    g <- read_graph(file = "graph-data/polblogs/polblogs.gml", format = "gml")   
+    g <- read_graph(file = "graphs/snap/polblogs/polblogs.gml", format = "gml")
     cl <- clusters(g)
     g <- induced_subgraph(g, which(cl$membership == which.max(cl$csize)))
   }
   
   if(graph.type == "facebook") { 
-    edg <- read.csv(paste0("graph-data/facebook/facebook_combined.txt"), sep=" ", header=FALSE)
+    edg <- read.csv(paste0("graphs/snap/facebook/facebook_combined.txt"), sep=" ", header=FALSE)
     edg <- as.matrix(edg)+1
     
     graph.params$n <- max(edg)
@@ -120,10 +120,6 @@ generate.graph <- function(graph.params) {
     g <- graph_from_adjacency_matrix(adj)
     g <- as.undirected(g)
     
-    #ego.set <- c(108, 3438, 1, 1685, 1913, 349, 415, 3981, 687, 699)
-    #g2 <- delete_vertices(g, ego.set)
-    #c1 <- components(g2)
-    #g <- induced_subgraph(g2, which(c1$membership == which.max(c1$csize)))
   }
   
   return(g)

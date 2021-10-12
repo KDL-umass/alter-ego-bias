@@ -1,4 +1,4 @@
-source("adversary-experiment.R")
+source("experiments/adversary-experiment.R")
 
 test.single.config <- function(idx, configs, trials, all=FALSE) { 
   cat("Running", idx, "\n")
@@ -42,7 +42,7 @@ test <- function() {
 }
 
 test.all <- function(trials, all=FALSE) { 
-  configs <- read.csv("all_adv_configurations.csv")
+  configs <- read.csv("experiments/configs/all_adv_configurations.csv")
   
   for(idx in 1:length(configs[[1]])) { 
     test.single.config(idx, configs, trials, all)
@@ -50,7 +50,7 @@ test.all <- function(trials, all=FALSE) {
 }
 
 test.inf.distr <- function(trials=500) { 
-  configs <- read.csv("binary_networks/all_graph_configurations.csv")
+  configs <- read.csv("graphs/synthetic/sbms/all_graph_configurations.csv")
   graph.configs <- configs
   graph.configs[,c("X", "lambda_0", "lambda_1", "lambda_2")] <- NULL
   graph.configs <- unique(graph.configs)

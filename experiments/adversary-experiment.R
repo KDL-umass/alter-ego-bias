@@ -3,7 +3,7 @@ library(dplyr)
 library(expm)
 library(reshape2)
 
-source("graph-utils.R")
+source("../graphs/graph-utils.R")
 
 
 build.outcome.params <- function(lambda_0, lambda_1, lambda_2, sd.noise) { 
