@@ -3,7 +3,7 @@ This repo contains the code for our work on A/B testing in networks with non-coo
 
 Cite our paper at USENIX 2022: 
 ```
-@inproceedings{clary2021noncooperative, 
+@inproceedings{clary2022noncooperative, 
     author={Clary, Kaleigh and Tosch, Emma and Onaolapo, Jeremiah and Jensen, David D.}, 
     title={Stick it to {T}he {M}an: Correcting for Non-Cooperative Behavior in {A}/{B} Network Testing},
     journal={{USENIX} Security},
