@@ -17,18 +17,20 @@ avg.degree <- mean(graph.properties$degrees)
 clusters <- generate.clusters(graph.properties$g, clustering)
 g$cluster_id <- clusters
 
-adversary.params <- list()
-adversary.params$setting <- "dominating"
-adversary.params$max <- TRUE
-adversary.params$weighting <- "degree"
+ncp.params <- list()
+ncp.params$setting <- "dominating"
+ncp.params$max <- TRUE
+ncp.params$weighting <- "degree"
 
-adversaries.deg <- unlist(list(determine.adversaries(graph.properties, adversary.params)))
+adversaries.deg <- unlist(list(determine.adversaries(graph.properties, ncp.params)))
 adversaries <- matrix(0,1,graph.properties$n)
-adversaries[which(adversaries.deg==1)[1:x]] <- 1
+adversaries[which(adversaries.deg==1)] <- 1
 
-random.adversaries <- sample(1:graph.properties$n, 11, replace=FALSE)
-adversaries <- matrix(0,1,graph.properties$n)
-adversaries[random.adversaries] <- 1
+# random NCP
+# n_adversaries <- sum(adversaries.deg)
+# random.adversaries <- sample(1:graph.properties$n, n_adversaries, replace=FALSE)
+# adversaries <- matrix(0,1,graph.properties$n)
+# adversaries[random.adversaries] <- 1
 
 print(adversaries)
 
@@ -37,16 +39,16 @@ treatment.assignments <- treatment[clusters]
 
 uncovered.vertices <- 1 - adversaries %*% graph.properties$adj - adversaries
 pt.uncovered <- sum(uncovered.vertices == 1)/graph.properties$n
-prepare.for.plots(g, adversaries, adversary.params$adversary.exposure, treatment.assignments, labels=TRUE)
+prepare.for.plots(g, adversaries, ncp.params$ncp.exposure, treatment.assignments, labels=TRUE)
 
 
-exposure.params <- exposure.probs(adversary.params, graph.properties, treatment.assignments, adversaries)
-print(exposure.params$influence.as.adversary)
+exposure.params <- exposure.probs(ncp.params, graph.properties, treatment.assignments, adversaries)
+print(exposure.params$influence.as.ncp)
 #V(g)$color <- adversaries.deg
 
 g$palette <- grey.colors(100)
-V(g)$color <- exposure.params$adversary.exposure.neighbors * 100
-#V(g)$color[which(exposure.params$adversary.exposure.neighbors) == 0] <- "lightblue"
+V(g)$color <- exposure.params$ncp.exposure.neighbors * 100
+#V(g)$color[which(exposure.params$ncp.exposure.neighbors) == 0] <- "lightblue"
 V(g)$color[which(adversaries > 0)] <- "red"
 
 
