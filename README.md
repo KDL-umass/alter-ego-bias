@@ -5,7 +5,7 @@ Cite our paper at USENIX 2022:
 ```
 @inproceedings{clary2022noncooperative, 
     author={Clary, Kaleigh and Tosch, Emma and Onaolapo, Jeremiah and Jensen, David D.}, 
-    title={Stick it to {T}he {M}an: Correcting for Non-Cooperative Behavior in {A}/{B} Network Testing},
+    title={Stick it to {T}he {M}an: Correcting for Non-Cooperative Behavior of Subjects in Experiments on Social Networks},
     journal={{USENIX} Security},
     year={2022}
 }
