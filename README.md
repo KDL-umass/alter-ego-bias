@@ -1,7 +1,7 @@
 # Network A/B Testing with Non-Cooperative Behavior 
 This repo contains the code for our work on A/B testing in networks with non-cooperative behavior. 
 
-Cite our paper at USENIX 2022: 
+Cite our paper at USENIX Security 2022: 
 ```
 @inproceedings{clary2022noncooperative, 
     author={Clary, Kaleigh and Tosch, Emma and Onaolapo, Jeremiah and Jensen, David D.}, 
