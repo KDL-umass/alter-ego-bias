@@ -3,7 +3,7 @@ library(dplyr)
 library(expm)
 library(reshape2)
 
-#source("../graphs/graph-utils.R")
+source("/Users/kavery/workspace/non-cooperative-spillover/graphs/graph-utils.R")
 
 
 build.outcome.params <- function(lambda_0, lambda_1, lambda_2, sd.noise) { 
@@ -26,7 +26,7 @@ get.stochastic.vars <- function(num, steps, sdnoise, noise) {
   return(stochastic.vars)
 }
 
-ncp.experiment <- function(graph.params, clustering, ncp.params, outcome.params) { 
+adversary.experiment <- function(graph.params, clustering, ncp.params, outcome.params) { 
   # generate graph structure
   g <- generate.graph(graph.params)
   graph.properties <- get.graph.properties(g)
@@ -50,12 +50,12 @@ ncp.experiment <- function(graph.params, clustering, ncp.params, outcome.params)
   }
   stochastic.vars <- get.stochastic.vars(graph.properties$n, 3, 0.1, noise)
   
-  bias.behavior <- data.frame(index=numeric(), size.of.dom=logical(), method=character(), pt.uncovered=numeric(), ncp.influence=numeric(), ATE.true=numeric(), ATE.adv.est=numeric(), ATE.adv.gui=numeric(), gui.beta=numeric(), gui.gamma=numeric(), stringsAsFactors=FALSE)
+  bias.behavior <- data.frame(index=numeric(), size.of.dom=logical(), method=character(), pt.uncovered=numeric(), adversary.influence=numeric(), ATE.true=numeric(), ATE.adv.est=numeric(), ATE.adv.gui=numeric(), gui.beta=numeric(), gui.gamma=numeric(), stringsAsFactors=FALSE)
   nonadv.ATE <- as.numeric(calculate.ATE.various(0, graph.properties, matrix(0,1,graph.properties$n), outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior)$ATE.adv.gui[1])
   
   ncp.params$setting <- "dominating"
   ncp.params$max <- TRUE
-  ncp.params$weighting <- "degree"
+  ncp.params$weighting <- "inf"
   if(graph.params$graph.type=="facebook") { 
     adversaries <- matrix(0, 1, graph.properties$n)
     dominating.adversaries.load <- c(108, 3438, 1, 1685, 1913, 349, 415, 3981, 687, 699)
@@ -104,11 +104,11 @@ ncp.experiment <- function(graph.params, clustering, ncp.params, outcome.params)
   bias.behavior$ATE.true <- as.numeric(bias.behavior$ATE.true)
   bias.behavior$ATE.adv.gui <- as.numeric(bias.behavior$ATE.adv.gui)
   
-  #bias.behavior.ATE <- melt(bias.behavior, id.vars=c("index", "size.of.dom", "method", "pt.uncovered", "ncp.influence", "ATE.true"))
+  #bias.behavior.ATE <- melt(bias.behavior, id.vars=c("index", "size.of.dom", "method", "pt.uncovered", "adversary.influence", "ATE.true"))
   bias.behavior$pt.covered <- 1 - bias.behavior$pt.uncovered
   bias.behavior$nonadv.ATE <- nonadv.ATE
   bias.behavior$avg.degree <- avg.degree
-  #ggplot(bias.behavior, aes(ncp.influence, ATE.adv.gui, color=method)) + geom_point()
+  #ggplot(bias.behavior, aes(adversary.influence, ATE.adv.gui, color=method)) + geom_point()
   return(bias.behavior)
 }
 

@@ -83,10 +83,9 @@ generate.graph <- function(graph.params) {
   }
   
   if(graph.type == "sbm") { 
-    edg <- read.csv(paste0("graphs/synthetic/sbms/nets/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
+    edg <- read.csv(paste0("/Users/kavery/workspace/non-cooperative-spillover/graphs/synthetic/sbms/nets/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
     edg <- as.matrix(edg)
     g <- graph_from_adjacency_matrix(edg, mode="undirected")
-    
   }
   
   if(graph.type == "forest-fire") { 
@@ -105,13 +104,13 @@ generate.graph <- function(graph.params) {
   }
   
   if(graph.type == "polyblogs") { 
-    g <- read_graph(file = "graphs/snap/polblogs/polblogs.gml", format = "gml")
+    g <- read_graph(file = "/Users/kavery/workspace/non-cooperative-spillover/graphs/snap/polblogs/polblogs.gml", format = "gml")
     cl <- clusters(g)
     g <- induced_subgraph(g, which(cl$membership == which.max(cl$csize)))
   }
   
   if(graph.type == "facebook") { 
-    edg <- read.csv(paste0("graphs/snap/facebook/facebook_combined.txt"), sep=" ", header=FALSE)
+    edg <- read.csv(paste0("/Users/kavery/workspace/non-cooperative-spillover/graphs/snap/facebook/facebook_combined.txt"), sep=" ", header=FALSE)
     edg <- as.matrix(edg)+1
     
     graph.params$n <- max(edg)

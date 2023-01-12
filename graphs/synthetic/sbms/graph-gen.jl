@@ -1,7 +1,8 @@
 using Graphs
+using DelimitedFiles
 
 function create_graphs(i)
-	graph_params = readdlm("all_graph_configurations.csv", ',')
+	graph_params = readdlm("/Users/kavery/workspace/non-cooperative-spillover/graphs/synthetic/sbms/all_graph_configurations.csv", ',')
 
 	n = graph_params[i,9]
 	graph_type = graph_params[i,2]
@@ -11,10 +12,14 @@ function create_graphs(i)
 			mu = graph_params[i,6]
 
 			label = "$graph_type-$n-$mu-$trial"
-			netfile = "nets/$label-adj.txt"
+			netfile = "/Users/kavery/workspace/non-cooperative-spillover/graphs/synthetic/sbms/nets/$label-adj.txt"
+			# print("here1")
 			if !isfile(netfile)
+				# print("here2")
 				println(label)
+				# print("here3")
 				create_network(n, mu, netfile)
+				# print("here4")
 			end
 			while !isfile(netfile) end
 		end
@@ -28,13 +33,14 @@ function create_network(n, mu, netfile)
 	"generate network with SBM benchmark suite from Lancichinetti, Fortunato (2009)"
 	avgd = ceil(10/1000*n)
 	maxd = (100/1000*n)
-	readall(`./benchmark -N $n -k $avgd -maxk $maxd -mu $mu`)
+	run(`/Users/kavery/workspace/non-cooperative-spillover/binary_networks/benchmark -N $n -k $avgd -maxk $maxd -mu $mu`)
 
-	adj = round(Int64, open(readdlm, "network.dat"))
+	adj = convert(Matrix{Int64}, open(readdlm, "network.dat"))
+	# adj = open(readdlm, "network.dat")
 	n = maximum(adj)
 	num_edges = size(adj,1)
 
-	g = simple_graph(n, is_directed=false)
+	g = SimpleGraph(n)
 
 	for i=1:num_edges
 		neighbors = adj[i,:]
@@ -42,15 +48,15 @@ function create_network(n, mu, netfile)
 			add_edge!(g, neighbors[1], neighbors[2])
 		end
 	end
-
-	adj = adjacency_matrix(g) + 0
+	
+	adj = adjacency_matrix(g) 
 	writedlm(netfile, adj, "\t")
-	readall(`rm network.dat`)
-	readall(`rm community.dat`)
+	run(`rm network.dat`)
+	run(`rm community.dat`)
 end
 
 
-t = readdlm("all_graph_configurations.csv", ',')
+t = readdlm("/Users/kavery/workspace/non-cooperative-spillover/graphs/synthetic/sbms/all_graph_configurations.csv", ',')
 for i=1:length(t[:,1])
 	create_graphs(i)
 end

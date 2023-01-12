@@ -13,7 +13,7 @@ prepare.for.plots <- function(g, adversaries, adversary.exposure, treatment.assi
 }
 
 plot.realworld.ATE.bias <- function() { 
-  res <- read.csv("results/all-results-facebook-zero.txt") 
+  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/all-results-facebook-zero.txt") 
   res$n <- 3732
   
   res$bias <- res$ATE.true - res$ATE.adv.gui
@@ -43,7 +43,7 @@ plot.increase.ATE.bias <- function(res, g.type) {
   #res2 <- read.csv("adversary-results-revised-sbm.csv")
   #res <- rbind(res, res2)
   cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
-  res <- read.csv("results/all-results.txt")
+  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/all-results.txt")
   
   res$bias <- res$ATE.true - res$ATE.adv.gui
   res$est.diff <- res$nonadv.ATE - res$ATE.adv.gui
