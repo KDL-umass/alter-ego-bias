@@ -2,6 +2,7 @@ library(plyr)
 library(dplyr)
 library(expm)
 library(reshape2)
+library(bit)
 
 source("/Users/kavery/workspace/non-cooperative-spillover/graphs/graph-utils.R")
 
@@ -26,9 +27,56 @@ get.stochastic.vars <- function(num, steps, sdnoise, noise) {
   return(stochastic.vars)
 }
 
+
+combine.adversaries <- function(g, adversaries, treatment.assignments, setting) {
+  ads <- which(adversaries==1)
+  treat <- which(treatment.assignments==1)
+  ctrl <- which(treatment.assignments==0)
+  if(setting == "random") {
+    mapping <- array( V(g) )
+    to.combine <- sample(ads, 2)
+    mapping[to.combine[1]] <- to.combine[2]
+    print("to.combine")
+    print(to.combine)
+    print(g)
+    g <- contract(g, mapping, vertex.attr.comb="first")
+    print(g)
+    # g <- delete_vertices(g, to.combine[1])
+    return(to.combine)
+  }
+  else {
+    treatment.ads <- intersect(ads, treat) 
+    control.ads <- intersect(ads, ctrl) 
+    print("treatment.ads")
+    print(treatment.ads)
+    print("control.ads")
+    print(control.ads)
+    if(length(treatment.ads) == 1){
+      combine.treat <- as.integer(treatment.ads)
+      combine.ctrl <- as.integer(control.ads)
+    }
+    else{
+      combine.treat <- as.integer(sample(treatment.ads, 1))
+      combine.ctrl <- as.integer(sample(control.ads, 1))
+    }
+    print(combine.treat)
+    print(combine.ctrl)
+    mapping <- array( V(g) )
+    print(mapping)
+    mapping[as.integer(combine.ctrl)] <- as.integer(combine.treat)
+    print(mapping)
+    print(g)
+    g <- contract(g, mapping, vertex.attr.comb="first")
+    # g <- delete_vertices(g, combine.ctrl)
+    print(g)
+    return(c(combine.treat, combine.ctrl))
+  }
+}
+
 adversary.experiment <- function(graph.params, clustering, ncp.params, outcome.params) { 
   # generate graph structure
   g <- generate.graph(graph.params)
+  # g <- read.graph("/Users/kavery/workspace/non-cooperative-spillover/example.txt", directed=FALSE)
   graph.properties <- get.graph.properties(g)
   graph.params$n <- graph.properties$n
   
@@ -36,11 +84,16 @@ adversary.experiment <- function(graph.params, clustering, ncp.params, outcome.p
   
   # generate graph clustering
   clusters <- generate.clusters(graph.properties$g, clustering)
+  # clusters <- c(1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2)
+  # print(clusters)
   if(sum(clusters==1)==graph.properties$n) stop("Only one cluster found")
   
   # assign treatment 
   treatment <- treatment.assignment(graph.properties$g, clusters)
+  # treatment <- c(1,0)
+  # print(treatment)
   treatment.assignments <- treatment[clusters]
+  # print(treatment.assignments)
   
   # prepre outcome model parameters
   if(graph.params$graph.type=="facebook") { 
@@ -52,7 +105,8 @@ adversary.experiment <- function(graph.params, clustering, ncp.params, outcome.p
   
   bias.behavior <- data.frame(index=numeric(), size.of.dom=logical(), method=character(), pt.uncovered=numeric(), adversary.influence=numeric(), ATE.true=numeric(), ATE.adv.est=numeric(), ATE.adv.gui=numeric(), gui.beta=numeric(), gui.gamma=numeric(), stringsAsFactors=FALSE)
   nonadv.ATE <- as.numeric(calculate.ATE.various(0, graph.properties, matrix(0,1,graph.properties$n), outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior)$ATE.adv.gui[1])
-  
+  print(nonadv.ATE)
+
   ncp.params$setting <- "dominating"
   ncp.params$max <- TRUE
   ncp.params$weighting <- "inf"
@@ -65,37 +119,66 @@ adversary.experiment <- function(graph.params, clustering, ncp.params, outcome.p
   } else { 
     dominating.adversaries.deg <- unlist(list(determine.adversaries(graph.properties, ncp.params)))
   }
+  print(dominating.adversaries.deg)
+  # print(treatment.assignments)
   ncp.params$max.dom.adv <- max(sum(dominating.adversaries.deg), ncp.params$max.dom.adv)
+  print(ncp.params$max.dom.adv)
   
   ncp.params$max <- FALSE
+  ads.left <- clone(dominating.adversaries.deg)
+  g.dom <- clone(g)
+  # print(graph.properties)
   # cycle through increasing numbers of adversaries
-  for(x in 1:sum(dominating.adversaries.deg == 1)) { 
+  while(sum(ads.left)>0) { 
     # decide adversaries
-    ncp.params$num.adv <- x
     adversaries <- matrix(0,1,graph.properties$n)
-    adversaries[which(dominating.adversaries.deg==1)[1:x]] <- 1
-    
+    # adversaries[which(dominating.adversaries.deg==1)]<-1
+    selected <- combine.adversaries(g.dom, ads.left, treatment.assignments, ncp.params$setting)
+    adversaries[selected] <- 1
+    ads.left[selected] <- 0
+    ncp.params$num.adv <- sum(adversaries)
+    print("adversaries")
+    print(adversaries)
+    print(ads.left)
+
+    graph.properties.dom <- get.graph.properties(g.dom)
+    # print(graph.properties.dom)
+    # graph.properties.dom$n <- graph.properties$n
+    # avg.degree.dom <- mean(graph.properties.dom$degrees)
+
     # compare to Gui estimator
-    bias.behavior <- calculate.ATE.various(x, graph.properties, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior)
+    bias.behavior <- calculate.ATE.various(ncp.params$num.adv, graph.properties.dom, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior)
   }
   
   ncp.params$max <- TRUE
   ncp.params$setting <- "random"
+  ads.left <- clone(dominating.adversaries.deg)
   
   #random.adversaries <- unlist(list(determine.adversaries(graph.properties, ncp.params)))
   rand.size <- sum(dominating.adversaries.deg==1)
   random.selection <- sample(1:graph.properties$n, rand.size)
   random.adversaries <- matrix(0,1,graph.properties$n)
   random.adversaries[random.selection] <- 1
+  ads.left <- clone(dominating.adversaries.deg)
+  g.rand <- clone(g)
   
-  for(x in 1:rand.size) {
+  while(sum(ads.left)>0) { 
     # decide adversaries
-    ncp.params$num.adv <- x
+    ncp.params$num.adv <- sum(ads.left)
     adversaries <- matrix(0,1,graph.properties$n)
-    adversaries[which(random.adversaries==1)[1:x]] <- 1
-    
+    selected <- combine.adversaries(g, ads.left, treatment.assignments, ncp.params$setting)
+    adversaries[selected] <- 1
+    ads.left[selected] <- 0
+    print("adversaries")
+    print(adversaries)
+    print(ads.left)
+
+    graph.properties.rand <- get.graph.properties(g)
+    # graph.params.rand$n <- graph.properties$n
+    # avg.degree.rand <- mean(graph.properties$degrees)
+
     # compare to Gui estimator
-    bias.behavior <- calculate.ATE.various(x, graph.properties, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior)
+    bias.behavior <- calculate.ATE.various(ncp.params$num.adv, graph.properties.rand, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior)
   }
   
   bias.behavior$index <- as.numeric(bias.behavior$index)
@@ -119,36 +202,36 @@ treatment.assignment <- function(g, clusters, prob=0.5) {
 determine.adversaries <- function(graph.properties, ncp.params) {
   adversaries <- matrix(0, 1, graph.properties$n)
   if(ncp.params$setting == "random") { 
-    if(ncp.params$weighting == "inf") { 
-      infs <- colSums(graph.properties$transition)
-      if(ncp.params$max) { 
-          ii <- 1
-          while(!check.dominating.set(graph.properties, adversaries)) { 
-            adversaries[infs[order(infs, decreasing = TRUE)]]  
-          }
-      }
-    } else { 
-      rand.order <- sample(1:graph.properties$n, graph.properties$n, replace = FALSE)
-      if(ncp.params$max) { 
-        idx <- 1
-        while(!check.dominating.set(graph.properties, adversaries)) { 
-          adversaries[rand.order[idx]] <- 1
-          idx <- idx + 1
-        }  
+    # if(ncp.params$weighting == "inf") { 
+    #   infs <- colSums(graph.properties$transition)
+    #   if(ncp.params$max) { 
+    #       ii <- 1
+    #       while(!check.dominating.set(graph.properties, adversaries)) { 
+    #         adversaries[infs[order(infs, decreasing = TRUE)]]  
+    #       }
+    #   }
+    # } else { 
+    rand.order <- sample(1:graph.properties$n, graph.properties$n, replace = FALSE)
+    if(ncp.params$max) { 
+      idx <- 1
+      while(!check.dominating.set(graph.properties, adversaries)) { 
+        adversaries[rand.order[idx]] <- 1
+        idx <- idx + 1
+      }  
     }
-      else adversaries[sample(1:n, ncp.params$num.adv, replace=FALSE)] <- 1
-    }
+    else adversaries[sample(1:n, ncp.params$num.adv, replace=FALSE)] <- 1
+    # }
   }
   if(ncp.params$setting == "dominating") {
-    if(ncp.params$weighting == "degree"){
-      dominating.set <- dominate.greedy(graph.properties)
-      if(ncp.params$max) ncp.params$num.adv <- length(dominating.set)
-      adversaries[,sample(dominating.set, ncp.params$num.adv)] <- 1
-    } else {
-      dominating.set <- dominate.greedy.inf(graph.properties)
-      if(ncp.params$max) ncp.params$num.adv <- length(dominating.set)
-      adversaries[,sample(dominating.set, ncp.params$num.adv)] <- 1
-    }
+    # if(ncp.params$weighting == "degree"){
+    #   dominating.set <- dominate.greedy(graph.properties)
+    #   if(ncp.params$max) ncp.params$num.adv <- length(dominating.set)
+    #   adversaries[,sample(dominating.set, ncp.params$num.adv)] <- 1
+    # } else {
+    dominating.set <- dominate.greedy.inf(graph.properties)
+    if(ncp.params$max) ncp.params$num.adv <- length(dominating.set)
+    adversaries[,sample(dominating.set, ncp.params$num.adv)] <- 1
+    # }
   }
   return(adversaries)
 }
@@ -186,13 +269,24 @@ calculate.ATE.various <- function(idx, graph.properties, adversaries, outcome.pa
   
   # determine bias in estimate due to adversaries
   bias.behavior[nrow(bias.behavior)+1,] <- c(idx, over.dom.max, method, pt.uncovered, ad.inf, ATE.true, ATE.bias.adv, ATE.adv.gui, gui.beta, gui.gamma)  
+  print(bias.behavior)
   return(bias.behavior)
 }
 
 lam.I <- function(graph.properties, treatment.assignments, outcome) {
   frac.treated <- as.numeric((graph.properties$adj %*% treatment.assignments) / graph.properties$degrees)
+  # print(graph.properties$adj)
+  # print(treatment.assignments)
+  # outcome.model <- lm(outcome ~ treatment.assignments + frac.treated)
+  # print("outcome model")
+  # print(outcome.model)
+  # frac.treated[which(treatment.assignments==1)] <- 0
+  # print(graph.properties$adj %*% treatment.assignments)
+  # print("frac.treated")
+  # print(frac.treated)
   
   outcome.model <- lm(outcome ~ treatment.assignments + frac.treated)
+  # print(outcome.model)
   return(outcome.model)
 }
 
