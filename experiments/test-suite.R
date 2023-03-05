@@ -132,4 +132,4 @@ test.small.world <- function(trials) {
   plot(plot1)
 }
 
-test.all(10)  
+test.all(1)  
