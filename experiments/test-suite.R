@@ -15,6 +15,8 @@ test.single.config <- function(idx, configs, trials, all=FALSE) {
   adversary.params <- list()
   adversary.params$model <- reduction.adv.model
   adversary.params$all <- all
+  adversary.params$setting <- "dominating"
+  adversary.params$weighting <- "inf"
   outcome.params <- build.outcome.params(configs[idx,"lambda_0"], configs[idx,"lambda_1"], configs[idx,"lambda_2"], configs[idx,"sd.noise"])
   clustering <- "infomap"
   
@@ -22,7 +24,7 @@ test.single.config <- function(idx, configs, trials, all=FALSE) {
     graph.params$ind <- i
     
     cat("trial", i, "\n")
-    bias.behavior.ATE <- adversary.experiment(graph.params, clustering, adversary.params, outcome.params)
+    bias.behavior.ATE <- adversary.experiment(graph.params, clustering, adversary.params, outcome.params, adversary.params$setting)
     bias.behavior.ATE$adversary.influence <- as.numeric(bias.behavior.ATE$adversary.influence)
     bias.behavior.ATE$gui.beta <- as.numeric(bias.behavior.ATE$gui.beta)
     bias.behavior.ATE$gui.gamma <- as.numeric(bias.behavior.ATE$gui.gamma)
@@ -33,7 +35,7 @@ test.single.config <- function(idx, configs, trials, all=FALSE) {
     bias.behavior.ATE$adv.bias <- bias.behavior.ATE$nonadv.ATE - bias.behavior.ATE$ATE.adv.gui
     
     results <- rbind(results, bias.behavior.ATE)
-    write.csv(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/adversary-results-", graph.params$graph.type, "-", idx, "-", i, ".csv"))
+    write.csv(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/adversary-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"))
   }
 }
 
@@ -132,4 +134,4 @@ test.small.world <- function(trials) {
   plot(plot1)
 }
 
-test.all(10)  
+test.all(1)  

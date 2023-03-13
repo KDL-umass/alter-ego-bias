@@ -83,7 +83,7 @@ generate.graph <- function(graph.params) {
   }
   
   if(graph.type == "sbm") { 
-    edg <- read.csv(paste0("/Users/kavery/workspace/non-cooperative-spillover/graphs/synthetic/sbms/nets/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
+    edg <- read.csv(paste0("/Users/kavery/workspace/non-cooperative-spillover/graphs/synthetic/sbms/adj/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
     edg <- as.matrix(edg)
     g <- graph_from_adjacency_matrix(edg, mode="undirected")
   }

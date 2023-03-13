@@ -38,7 +38,7 @@ plot.realworld.ATE.bias <- function() {
 
 
 
-plot.increase.ATE.bias <- function(res, g.type) {
+plot.increase.ATE.bias <- function() {
   #res <- read.csv("adversary-results-revised.csv")
   #res2 <- read.csv("adversary-results-revised-sbm.csv")
   #res <- rbind(res, res2)
@@ -87,6 +87,7 @@ plot.increase.ATE.bias <- function(res, g.type) {
   plot(plot3) 
   
   df <- subset(res, size.of.dom==FALSE & graph.type == "SBM")
+  print(df.head())
   #stats.sw <- df[,c("method", "lambda_1", "lambda_2", "index", "p", "diff.norm")] %>% group_by(method, lambda_1, lambda_2, index, p) %>% summarize_each_(funs(mean, sd, median), vars="diff.norm") 
   #stats.sw <- subset(stats.sw, index < 31)
   plot7 <- ggplot(subset(df, lambda_1 == 0.75 & lambda_2 == 0.5), aes(pt.adversaries, diff.norm, color=method)) + 
@@ -128,3 +129,5 @@ plot.increase.ATE.bias <- function(res, g.type) {
   plot(plot6)
   
 }
+
+plot.increase.ATE.bias()
