@@ -24,7 +24,7 @@ test.single.config <- function(idx, configs, trials, all=FALSE) {
     graph.params$ind <- i
     
     cat("trial", i, "\n")
-    bias.behavior.ATE <- multiple.account.experiment(graph.params, clustering, adversary.params, outcome.params, adversary.params$setting)
+    bias.behavior.ATE <- sybil.experiment(graph.params, clustering, adversary.params, outcome.params, adversary.params$setting)
     bias.behavior.ATE$adversary.influence <- as.numeric(bias.behavior.ATE$adversary.influence)
     bias.behavior.ATE$gui.beta <- as.numeric(bias.behavior.ATE$gui.beta)
     bias.behavior.ATE$gui.gamma <- as.numeric(bias.behavior.ATE$gui.gamma)
@@ -115,15 +115,15 @@ test.small.world <- function(trials) {
   adversary.params$model <- reduction.adv.model
   
   outcome.params <- list()
-  outcome.params$lambda_0 <- -1.5
+  outcome.params$lambda_0 <- 0 #-1.5
   outcome.params$lambda_1 <- 0.75
   outcome.params$lambda_2 <- 0.5
   outcome.params$sd.noise <- 1
   
   #set.seed(1337)
-  bias.behavior.ATE <- multiple.account.experiment(graph.params, "infomap", adversary.params, outcome.params)
+  bias.behavior.ATE <- sybil.experiment(graph.params, "infomap", adversary.params, outcome.params)
   for(i in 1:(trials-1)) {
-    bias.behavior.ATE <- rbind(bias.behavior.ATE, multiple.account.experiment(graph.params, "infomap", adversary.params, outcome.params))
+    bias.behavior.ATE <- rbind(bias.behavior.ATE, sybil.experiment(graph.params, "infomap", adversary.params, outcome.params))
   }
   
   bias.behavior.ATE$value <- as.numeric(bias.behavior.ATE$value)
@@ -134,4 +134,4 @@ test.small.world <- function(trials) {
   plot(plot1)
 }
 
-test.all(10)  
+test.all(1)  
