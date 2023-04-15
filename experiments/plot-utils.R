@@ -13,8 +13,8 @@ prepare.for.plots <- function(g, adversaries, adversary.exposure, treatment.assi
 }
 
 plot.realworld.ATE.bias <- function() { 
-  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/all-results-facebook-zero.txt") 
-  res$n <- 3732
+  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/results-forest-fire-0.25-1.csv") 
+  res$n <- 4039
   
   res$bias <- res$ATE.true - res$ATE.adv.gui
   res$est.diff <- res$nonadv.ATE - res$ATE.adv.gui
@@ -25,11 +25,11 @@ plot.realworld.ATE.bias <- function() {
   
   res$pt.adversaries <- res$index / res$n
   
-  plot1 <- ggplot(res, aes(pt.adversaries, diff.norm)) + 
+  plot1 <- ggplot(res, aes(pt.adversaries, abs(diff.norm))) + 
     geom_smooth() + 
     xlab("Adversarial fraction of network") + ylab("Bias in Estimated ATE / Estimated ATE") +  
     theme_bw()+ theme(text = element_text(size = 15)) + theme(legend.position="bottom") +
-    guides(color=guide_legend(override.aes=list(fill=NA))) + 
+    guides(color=guide_legend(override.aes=list(fill=NA))) +  ylim(c(0,1)) + xlim(c(0,0.2)) +
     theme(axis.text.x = element_text(angle = 70, hjust = 1))
   plot(plot1)
 }
@@ -41,17 +41,31 @@ plot.increase.ATE.bias <- function() {
   #res2 <- read.csv("adversary-results-revised-sbm.csv")
   #res <- rbind(res, res2)
   cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
-  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/sybil/adversary-results-small-world-0.25-4.csv")
+  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/results-forest-fire-0.25-1.csv")
   
   res$bias <- res$ATE.true - res$ATE.adv.gui
   res$est.diff <- res$nonadv.ATE - res$ATE.adv.gui
   res$bias.norm <- res$bias / res$ATE.true
   res$diff.norm <- res$est.diff / res$nonadv.ATE
   
-  #res <- subset(res, method != "degree")
   res$graph.type <- ifelse(res$graph.type == "sbm", "SBM", as.character(res$graph.type))
   
-  res$pt.adversaries <- res$index / res$n
+  res$pt.adversaries <- 1 - (res$index / res$n)
+  # res$pt.adversaries <- res$index / res$n
+
+  # index <- append(res$index, c(res$index[length(res$index)]:1))
+  # print(index)
+  # pt.adversaries <- 1 - (index / 1000)
+ 
+  # print(pt.adversaries)
+  # diff.norm <- append(res$diff.norm, rep(pt.adversaries[length(pt.adversaries)], 1000-nrow(res)))
+  # print(diff.norm)
+
+  # print(1000-nrow(res))
+  # res[nrow(res)+(1000-nrow(res)),] <- NA
+  # res$index <- index
+  # res$pt.adversaries <- pt.adversaries
+  # res$diff.norm <- diff.norm
   
   # #remove late indices
   # res <- subset(res, !(graph.type == "forest-fire" & index > 350 & res$n==1000))
@@ -66,65 +80,48 @@ plot.increase.ATE.bias <- function() {
   # res <- subset(res, !(graph.type == "small-world" & index > 143 & res$n==500))
   # res <- subset(res, !(graph.type == "SBM" & index > 143 & res$n==500))
   
-  df <- subset(res, size.of.dom==FALSE & graph.type == "small-world")
-  # plot2 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + 
-  #   geom_smooth() + xlab("Adversarial fraction of network (small world)") + ylim(c(0,1)) + xlim(c(0,0.175)) +
-  #   ylab("Bias in Estimated ATE / Estimated ATE") + geom_abline(slope=0) + 
-  #   theme_bw() + theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
-  #   theme(axis.text.x = element_text(angle = 70, hjust = 1))
-  # plot(plot2)
-  
-  plot3 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + geom_smooth(color="#56B4E9") + 
-    xlab("Adversarial fraction of network (small-world)") + ylab("Bias in Estimated ATE / Estimated ATE") + ylim(c(0,1)) + xlim(c(0,1)) +
-    geom_abline(slope=0) + theme_bw() + theme(text = element_text(size = 15)) + 
-    theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
-    theme(axis.text.x = element_text(angle = 70, hjust = 1))
-  plot(plot3) 
-  
-  df <- subset(res, size.of.dom==FALSE & graph.type == "SBM")
-
-  # plot7 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + 
-  #   geom_smooth() + geom_ribbon(aes(y = abs(diff.norm), ymin = abs(diff.norm) - sd, ymax = abs(diff.norm) + sd, fill = method), alpha = .2) + 
-  #   xlab("Adversarial fraction of network (SBM)") + ylim(c(0,1)) + xlim(c(0,0.175)) +
-  #   ylab("Bias in Estimated ATE / Estimated ATE") + geom_abline(slope=0) + 
-  #   theme_bw() + theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
-  #   theme(axis.text.x = element_text(angle = 70, hjust = 1))
-  # plot(plot7)
-  
-  # plot8 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + geom_smooth(color="#E69F00") + 
-  #   xlab("Adversarial fraction of network (SBM)") + ylab("Bias in Estimated ATE / Estimated ATE") + 
-  #   geom_abline(slope=0) + theme_bw() + theme(text = element_text(size = 15)) + 
-  #   theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
-  #   theme(axis.text.x = element_text(angle = 70, hjust = 1)) + scale_colour_manual(values=cbPalette)
-  # plot(plot8) 
+  # df <- subset(res, size.of.dom==FALSE & graph.type == "small-world")
+  # df <- subset(res, size.of.dom==FALSE & graph.type == "facebook")
   
   df <- subset(res, size.of.dom==FALSE & graph.type == "forest-fire")
-  # plot7 <- ggplot(df, aes(pt.adversaries, diff.norm)) + 
-  #   geom_smooth() + xlab("Adversarial fraction of network (forest-fire)") + ylim(c(0,1)) + xlim(c(0,0.175)) +
-  #   ylab("Bias in Estimated ATE / Estimated ATE") + geom_abline(slope=0) + 
-  #   theme_bw() + theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
-  #   theme(axis.text.x = element_text(angle = 70, hjust = 1))
-  # plot(plot7)
 
-  # plot8 <- ggplot(df, aes(pt.adversaries, diff.norm)) + geom_smooth(color="#009E73") + 
-  #   xlab("Adversarial fraction of network (forest fire)") + ylab("Bias in Estimated ATE / Estimated ATE") + 
-  #   geom_abline(slope=0) + theme_bw() + theme(text = element_text(size = 15)) + 
-  #   theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA)), linetype=guide_legend(override.aes=list(fill=NA))) + 
+  plot3 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + geom_smooth(color="#56B4E9") + 
+    xlab("Sybil fraction of network") + ylab("Bias in Estimated ATE / Estimated non-Sybil ATE") + 
+    geom_abline(slope=0) + theme_bw() + theme(text = element_text(size = 20)) + ylim(c(0,1)) + xlim(c(0,0.5)) + 
+    theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
+    theme(axis.text.x = element_text(angle = 70, hjust = 1)) + scale_colour_manual(values=cbPalette)
+  plot(plot3) 
+  
+  # df <- subset(res, size.of.dom==FALSE & graph.type == "SBM")
+  
+  # plot5 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + geom_smooth(color="#E69F00") + 
+  #   xlab("Sybil fraction of network") + ylab("Bias in Estimated ATE / Estimated non-Sybil ATE") + 
+  #   geom_abline(slope=0) + theme_bw() + theme(text = element_text(size = 20)) + ylim(c(0,1)) + xlim(c(0,0.5)) +
+  #   theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
+  #   theme(axis.text.x = element_text(angle = 70, hjust = 1)) + scale_colour_manual(values=cbPalette)
+  # plot(plot5) 
+  
+  # df <- subset(res, size.of.dom==FALSE & graph.type == "forest-fire")
+
+  # plot8 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + geom_smooth(color="#009E73") + 
+  #   xlab("Sybil fraction of network") + ylab("Bias in Estimated ATE / Estimated non-Sybil ATE") + 
+  #   geom_abline(slope=0) + theme_bw() + theme(text = element_text(size = 20)) + ylim(c(0,1)) + xlim(c(0,0.5)) +
+  #   theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
   #   theme(axis.text.x = element_text(angle = 70, hjust = 1)) + scale_colour_manual(values=cbPalette)
   # plot(plot8) 
   
   # res$graph.type <- factor(res$graph.type, levels=c("SBM", "small-world", "scale-free", "forest-fire"))
   
-  # plot5 <- ggplot(subset(res, size.of.dom==FALSE), aes(pt.adversaries, adversary.influence)) + 
-  #   geom_smooth() + xlab("Adversarial fraction of network") + ylab("Adversary influence") + 
-  #   facet_wrap(~graph.type, scales="free_x") + theme_bw() + theme(text = element_text(size = 15)) + 
+  # plot5 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + geom_smooth(color="#009E73") + 
+  #   xlab("Adversarial fraction of network") + ylab("Bias in Estimated ATE / Estimated non-Sybil ATE") + 
+  #   geom_abline(slope=0) + theme_bw() + theme(text = element_text(size = 20)) + ylim(c(0,1)) + 
   #   theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
-  #   theme(axis.text.x = element_text(angle = 70, hjust = 1))
+  #   theme(axis.text.x = element_text(angle = 70, hjust = 1)) + scale_colour_manual(values=cbPalette)
   # plot(plot5)
   
   # plot6 <- ggplot(subset(res, size.of.dom==FALSE), aes(pt.adversaries, adversary.influence, color=graph.type)) + 
   #   geom_smooth() + xlab("Adversarial fraction of network") + ylab("Adversary influence") + 
-  #    theme_bw() + theme(text = element_text(size = 15)) + 
+  #    theme_bw() + theme(text = element_text(size = 20)) + 
   #   theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
   #   theme(axis.text.x = element_text(angle = 70, hjust = 1))
   # plot(plot6)
@@ -132,3 +129,4 @@ plot.increase.ATE.bias <- function() {
 }
 
 plot.increase.ATE.bias()
+# plot.realworld.ATE.bias()

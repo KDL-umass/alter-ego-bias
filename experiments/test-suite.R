@@ -35,7 +35,8 @@ test.single.config <- function(idx, configs, trials, all=FALSE) {
     bias.behavior.ATE$adv.bias <- bias.behavior.ATE$nonadv.ATE - bias.behavior.ATE$ATE.adv.gui
     
     results <- rbind(results, bias.behavior.ATE)
-    write.csv(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/adversary-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"))
+    write.table(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/facebook-sybil-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"), append = TRUE , col.names = FALSE,sep = ",")
+    # write.csv(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"))
   }
 }
 
@@ -44,7 +45,7 @@ test <- function() {
 }
 
 test.all <- function(trials, all=FALSE) { 
-  configs <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/experiments/configs/all_adv_configurations.csv")
+  configs <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/experiments/configs/all_adv_configurations_rw.csv")
   
   for(idx in 1:length(configs[[1]])) { 
     test.single.config(idx, configs, trials, all)

@@ -183,10 +183,10 @@ dominate.greedy.inf <- function(graph.properties,weight=NULL,proportion=1.0) {
     trans[S,] <- 0
     od <- colSums(trans)
   }
-  nvec <- c(1:n)
-  diff <- setdiff(nvec, S)
+  # nvec <- c(1:n)
+  # diff <- setdiff(nvec, S)
   # print(diff)
-  S <- append(S, diff)
+  # S <- append(S, diff)
   # print("S")
   # print(S)
   S
