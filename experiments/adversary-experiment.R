@@ -184,8 +184,8 @@ sybil.experiment <- function(graph.params, clustering, ncp.params, outcome.param
   
   # num.conn <- c(2, 3, 5, 10, 20, 30, 40, 50, 100)
   sybil.assignment <- sample(c(0,1), 1)
-  x <- 201:808
-  x <- x[x %% 2 == 0]
+  x <- 497:808
+  x <- x[x %% 10 == 0]
   
   if(setting == "dominating"){
     for(i in x){

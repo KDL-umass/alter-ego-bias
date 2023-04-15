@@ -45,7 +45,7 @@ plot.increase.ATE.bias <- function() {
   
   res$bias <- res$ATE.true - res$ATE.adv.gui
   res$est.diff <- res$nonadv.ATE - res$ATE.adv.gui
-  res$bias.norm <- res$bias / res$ATE.true
+  # res$bias.norm <- res$bias / res$ATE.true
   res$diff.norm <- res$est.diff / res$nonadv.ATE
   
   res$graph.type <- ifelse(res$graph.type == "sbm", "SBM", as.character(res$graph.type))
