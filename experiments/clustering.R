@@ -16,6 +16,20 @@ find.mdl.edges <- function(g, ncp.params){
 
 }
 
+heterogeneous.adv.model <- function(treated.adv, control.adv, outcome.params, clusters) { 
+  n <- length(treated.adv)
+  treated.diff.response <- sample(which(treated.adv==1), length(which(treated.adv==1))/2) 
+  control.diff.response <- sample(which(control.adv==1), length(which(control.adv==1))/2) 
+  out <- matrix(0, 1, n)  
+
+  out[1,which(treated.adv==1)] <- outcome.params$lambda_0 + outcome.params$lambda_1
+  out[1,which(control.adv==1)] <- outcome.params$lambda_0
+  out[1,treated.diff.response==1] <- outcome.params$lambda_0 + outcome.params$lambda_1 - 0.25
+  out[1,control.diff.response==1] <- outcome.params$lambda_0 + 0.25
+  
+  return(out) 
+}
+
 clustering.experiment <- function(graph.params, clustering, ncp.params, outcome.params, setting="dominating") { 
   # generate graph structure
   g <- generate.graph(graph.params)

@@ -41,7 +41,7 @@ plot.increase.ATE.bias <- function() {
   #res2 <- read.csv("adversary-results-revised-sbm.csv")
   #res <- rbind(res, res2)
   cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
-  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/results-forest-fire-0.25-1.csv")
+  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/mult-results-forest-fire-0.25-2.csv")
   
   res$bias <- res$ATE.true - res$ATE.adv.gui
   res$est.diff <- res$nonadv.ATE - res$ATE.adv.gui
@@ -52,7 +52,7 @@ plot.increase.ATE.bias <- function() {
   
   res$pt.adversaries <- 1 - (res$index / res$n)
   # res$pt.adversaries <- res$index / res$n
-
+  
   # index <- append(res$index, c(res$index[length(res$index)]:1))
   # print(index)
   # pt.adversaries <- 1 - (index / 1000)
@@ -85,9 +85,9 @@ plot.increase.ATE.bias <- function() {
   
   df <- subset(res, size.of.dom==FALSE & graph.type == "forest-fire")
 
-  plot3 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + geom_smooth(color="#56B4E9") + 
+  plot3 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + geom_smooth(color="#56B4E9") + geom_point() +
     xlab("Sybil fraction of network") + ylab("Bias in Estimated ATE / Estimated non-Sybil ATE") + 
-    geom_abline(slope=0) + theme_bw() + theme(text = element_text(size = 20)) + ylim(c(0,1)) + xlim(c(0,0.5)) + 
+    geom_abline(slope=0) + theme_bw() + theme(text = element_text(size = 20)) + ylim(c(0,1)) + #xlim(c(0,0.2)) + 
     theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
     theme(axis.text.x = element_text(angle = 70, hjust = 1)) + scale_colour_manual(values=cbPalette)
   plot(plot3) 
