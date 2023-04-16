@@ -41,7 +41,7 @@ plot.increase.ATE.bias <- function() {
   #res2 <- read.csv("adversary-results-revised-sbm.csv")
   #res <- rbind(res, res2)
   cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
-  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/mult-results-forest-fire-0.25-2.csv")
+  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/mult-results-sbm-0.25-1.csv")
   
   res$bias <- res$ATE.true - res$ATE.adv.gui
   res$est.diff <- res$nonadv.ATE - res$ATE.adv.gui
