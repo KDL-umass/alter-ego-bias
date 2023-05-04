@@ -13,7 +13,7 @@ prepare.for.plots <- function(g, adversaries, adversary.exposure, treatment.assi
 }
 
 plot.realworld.ATE.bias <- function() { 
-  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/results-forest-fire-0.25-1.csv") 
+  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/final/facebook-sybil-80conn.csv") 
   res$n <- 4039
   
   res$bias <- res$ATE.true - res$ATE.adv.gui
@@ -23,13 +23,13 @@ plot.realworld.ATE.bias <- function() {
   
   # res$method <- ifelse(res$method == "random", "random", "dominating")
   
-  res$pt.adversaries <- res$index / res$n
+  res$pt.adversaries <- res$index / (res$n+res$index)
   
   plot1 <- ggplot(res, aes(pt.adversaries, abs(diff.norm))) + 
     geom_smooth() + 
-    xlab("Adversarial fraction of network") + ylab("Bias in Estimated ATE / Estimated ATE") +  
-    theme_bw()+ theme(text = element_text(size = 15)) + theme(legend.position="bottom") +
-    guides(color=guide_legend(override.aes=list(fill=NA))) +  ylim(c(0,1)) + xlim(c(0,0.2)) +
+    xlab("Sybil fraction of network") + ylab("Bias in Estimated ATE / Estimated non-Sybil ATE") +  
+    theme_bw()+ theme(text = element_text(size = 30)) + theme(legend.position="bottom") +
+    guides(color=guide_legend(override.aes=list(fill=NA))) +  ylim(c(0,1)) + #xlim(c(0,0.2)) +
     theme(axis.text.x = element_text(angle = 70, hjust = 1))
   plot(plot1)
 }
@@ -41,7 +41,7 @@ plot.increase.ATE.bias <- function() {
   #res2 <- read.csv("adversary-results-revised-sbm.csv")
   #res <- rbind(res, res2)
   cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#999999")
-  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/mult-results-sbm-0.25-1.csv")
+  res <- read.csv("/Users/kavery/workspace/non-cooperative-spillover/results/final/all-mult-results-sbm.csv")
   
   res$bias <- res$ATE.true - res$ATE.adv.gui
   res$est.diff <- res$nonadv.ATE - res$ATE.adv.gui
@@ -50,8 +50,8 @@ plot.increase.ATE.bias <- function() {
   
   res$graph.type <- ifelse(res$graph.type == "sbm", "SBM", as.character(res$graph.type))
   
-  res$pt.adversaries <- 1 - (res$index / res$n)
-  # res$pt.adversaries <- res$index / res$n
+  res$pt.adversaries <- 1-(abs(res$n/2 - res$index)*2)/res$n
+  # res$pt.adversaries <- res$index / (res$n+res$index)
   
   # index <- append(res$index, c(res$index[length(res$index)]:1))
   # print(index)
@@ -83,13 +83,23 @@ plot.increase.ATE.bias <- function() {
   # df <- subset(res, size.of.dom==FALSE & graph.type == "small-world")
   # df <- subset(res, size.of.dom==FALSE & graph.type == "facebook")
   
-  df <- subset(res, size.of.dom==FALSE & graph.type == "forest-fire")
+  # df <- subset(res, size.of.dom==FALSE & graph.type == "forest-fire")
+  df <- subset(res, size.of.dom==FALSE & graph.type == "SBM")
 
-  plot3 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + geom_smooth(color="#56B4E9") + geom_point() +
+  # plot3 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + geom_smooth(color="#56B4E9") + geom_point() +
+  #   xlab("Sybil fraction of network") + ylab("Bias in Estimated ATE / Estimated non-Sybil ATE") + 
+  #   geom_abline(slope=0) + theme_bw() + theme(text = element_text(size = 20)) + ylim(c(0,1)) + #xlim(c(0,0.2)) + 
+  #   theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
+  #   theme(axis.text.x = element_text(angle = 70, hjust = 1)) + scale_colour_manual(values=cbPalette)
+
+  plot3 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + geom_smooth( color="#E69F00") + #geom_point() +
     xlab("Sybil fraction of network") + ylab("Bias in Estimated ATE / Estimated non-Sybil ATE") + 
-    geom_abline(slope=0) + theme_bw() + theme(text = element_text(size = 20)) + ylim(c(0,1)) + #xlim(c(0,0.2)) + 
-    theme(legend.position="bottom") + guides(color=guide_legend(override.aes=list(fill=NA))) + 
+    geom_abline(slope=0) + theme_bw() + theme(text = element_text(size = 30)) + ylim(c(0,1)) + xlim(c(0,0.5)) + 
+    theme(legend.position="bottom") + 
     theme(axis.text.x = element_text(angle = 70, hjust = 1)) + scale_colour_manual(values=cbPalette)
+
+  # plot3 <- ggplot(df, aes(pt.adversaries, abs(diff.norm))) + geom_smooth(alpha = .15, color="#56B4E9") + geom_point()
+
   plot(plot3) 
   
   # df <- subset(res, size.of.dom==FALSE & graph.type == "SBM")

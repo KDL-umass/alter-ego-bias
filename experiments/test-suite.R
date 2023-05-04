@@ -36,7 +36,7 @@ test.mult.config <- function(idx, configs, trials, all=FALSE) {
     
     results <- rbind(results, bias.behavior.ATE)
     # write.table(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/facebook-sybil-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"), append = TRUE , col.names = FALSE,sep = ",")
-    write.csv(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/mult-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"))
+    write.csv(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/mult-sun-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"))
   }
 }
 
@@ -75,8 +75,8 @@ test.sybil.config <- function(idx, configs, trials, all=FALSE) {
     bias.behavior.ATE$adv.bias <- bias.behavior.ATE$nonadv.ATE - bias.behavior.ATE$ATE.adv.gui
     
     results <- rbind(results, bias.behavior.ATE)
-    write.table(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/sybil-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"), append = TRUE , col.names = FALSE,sep = ",")
-    # write.csv(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"))
+    # write.table(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/sybil-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"), append = TRUE , col.names = FALSE,sep = ",")
+    write.csv(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/facebook-sybil-sun-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"))
   }
 }
 
