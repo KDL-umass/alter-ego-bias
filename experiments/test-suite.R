@@ -1,4 +1,5 @@
 source("/Users/kavery/workspace/non-cooperative-spillover/experiments/adversary-experiment.R")
+source("/Users/kavery/workspace/non-cooperative-spillover/experiments/multiple-account-experiment.R")
 
 test.mult.config <- function(idx, configs, trials, all=FALSE) { 
   cat("Running", idx, "\n")
@@ -36,7 +37,7 @@ test.mult.config <- function(idx, configs, trials, all=FALSE) {
     
     results <- rbind(results, bias.behavior.ATE)
     # write.table(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/facebook-sybil-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"), append = TRUE , col.names = FALSE,sep = ",")
-    write.csv(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/mult-sun-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"))
+    write.csv(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/new-greedy-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"))
   }
 }
 
@@ -110,4 +111,4 @@ test.all.mult <- function(trials, all=FALSE) {
 }
 
 
-test.all.mult(10)  
+test.all.mult(3)  
