@@ -37,7 +37,7 @@ test.mult.config <- function(idx, configs, trials, all=FALSE) {
     
     results <- rbind(results, bias.behavior.ATE)
     # write.table(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/facebook-sybil-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"), append = TRUE , col.names = FALSE,sep = ",")
-    write.csv(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/new-greedy-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"))
+    write.csv(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/new-dominating-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"))
   }
 }
 
@@ -111,4 +111,4 @@ test.all.mult <- function(trials, all=FALSE) {
 }
 
 
-test.all.mult(3)  
+test.all.mult(20)  

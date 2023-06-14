@@ -123,12 +123,16 @@ outcome.model <- function(outcome.params, treat, graph.properties, adversaries, 
   }
 
   out.t3 <- outcome.params$lambda_0 + outcome.params$lambda_1 * treat + outcome.params$lambda_2 * rowSums(graph.properties$adj %*% diag(as.numeric(out.t2)) / graph.properties$degrees) + stochastic.vars$t3
+  # print(out.t3)
   if(!benign) out.t3[which(adversaries == 1)] <- ncp.params$model(treated.adv, control.adv, outcome.params)[which(adversaries == 1)]
   if(!is.null(selected)){
       for(sel in selected){
           out.t3[sel[2]] = out.t3[sel[1]]
       }
+      # print(selected)
   }
+  # print("after")
+  # print(out.t3)
 
   return(out.t3) 
 }
