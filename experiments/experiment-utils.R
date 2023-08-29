@@ -4,7 +4,7 @@ library(expm)
 library(reshape2)
 library(bit)
 
-source("/Users/kavery/workspace/non-cooperative-spillover/graphs/graph-utils.R")
+source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/graph-utils.R")
 
 treatment.assignment <- function(g, clusters, prob=0.5) { 
   return(rbinom(length(unique(clusters)), 1, prob))

@@ -4,8 +4,8 @@ library(expm)
 library(reshape2)
 library(bit)
 
-source("/Users/kavery/workspace/non-cooperative-spillover/graphs/graph-utils.R")
-source("/Users/kavery/workspace/non-cooperative-spillover/experiments/experiment-utils.R")
+source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/graph-utils.R")
+source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/experiment-utils.R")
 
 select.adversaries <- function(adversaries, treatment.assignments, setting) {
   ads <- which(adversaries==1)
