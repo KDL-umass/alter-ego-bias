@@ -1,4 +1,3 @@
-source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/adversary-experiment.R")
 source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/multiple-account-experiment.R")
 
 test.mult.config <- function(idx, setting, configs, trials, all=FALSE) { 
@@ -37,7 +36,7 @@ test.mult.config <- function(idx, setting, configs, trials, all=FALSE) {
     
     results <- rbind(results, bias.behavior.ATE)
     # write.table(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/facebook-sybil-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"), append = TRUE , col.names = FALSE,sep = ",")
-    write.csv(results, paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/results/new-",setting,"-results-", graph.params$graph.type, "-", outcome.params["lambda_1"], "-", outcome.params["lambda_2"], "-", i+30, ".csv"))
+    write.csv(results, paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/results/new-",setting,"-results-", graph.params$graph.type, "-", outcome.params["lambda_1"], "-", outcome.params["lambda_2"], "-", i+50, ".csv"))
   }
 }
 
@@ -95,7 +94,7 @@ test.all <- function(trials, all=FALSE) {
 }
 
 test.all.sybil <- function(trials, all=FALSE) { 
-  configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_adv_configurations.csv")
+  configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_adv_configurations_rw.csv")
   
   for(idx in 1:length(configs[[1]])) { 
     test.sybil.config(idx, configs, trials, all)
@@ -103,7 +102,7 @@ test.all.sybil <- function(trials, all=FALSE) {
 }
 
 test.all.mult <- function(trials, all=FALSE) { 
-  configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_adv_configurations.csv")
+  configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_adv_configurations_rw.csv")
   
   for(idx in 1:length(configs[[1]])) { 
     test.mult.config(idx, configs, trials, all)
@@ -113,7 +112,7 @@ test.all.mult <- function(trials, all=FALSE) {
 args <- commandArgs(trailingOnly = TRUE)
 print(args)
 idx <- as.integer(args[1])
-configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_adv_configurations.csv")
+configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_adv_configurations_rw.csv")
 setting <- args[2]
 trials <- as.integer(args[3])
 test.mult.config(idx, setting, configs, trials, FALSE)

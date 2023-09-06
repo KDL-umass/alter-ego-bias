@@ -74,6 +74,7 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
     ncp.params$num.adv <- length(ordered.adversaries)
     adversaries[,sample(ordered.adversaries, ncp.params$num.adv)] <- 1
     dominating.adversaries.deg <- adversaries
+    print(dominating.adversaries.deg)
   } 
   else { 
     adversary.list <- determine.adversaries(graph.properties, ncp.params)
@@ -93,7 +94,7 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
   all.selected <- list()
 
   # cycle through increasing numbers of adversaries
-  while(sum(ads.left)>=2) { 
+  while(sum(ads.left)>=2 & length(all.selected)<=(graph.properties$n/4)+10) { 
     ads <- which(ads.left==1)
     treat <- which(treatment.assignments==1)
     ctrl <- which(treatment.assignments==0)
@@ -117,7 +118,7 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
   
   ads.left <- rep(0,graph.properties$n)
   ads.left[which(clone(dominating.adversaries.deg)==0)] <- 1
-  while(sum(ads.left)>=2){
+  while(sum(ads.left)>=2 & length(all.selected)<=(graph.properties$n/4)+10){
     ads <- which(ads.left==1)
     treat <- which(treatment.assignments==1)
     ctrl <- which(treatment.assignments==0)
