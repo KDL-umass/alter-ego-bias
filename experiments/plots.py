@@ -102,7 +102,7 @@ def facebook_plot_dfs(dfs, ax, color, random):
     ax.set_xticks([1, 2, 3, 4, 5])
     # ax.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
     ax.grid(alpha=0.5)
-    ax.set_ylim(-0.01,0.05)
+    ax.set_ylim(-0.01,0.06)
     ax.set_xlim(0.5, 5.5)
     # ax.fill_between(num_adversaries, mean-ci, mean+ci, facecolor=color, alpha=0.2)
     # print(mean)
