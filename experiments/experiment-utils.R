@@ -6,6 +6,26 @@ library(bit)
 
 source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/graph-utils.R")
 
+build.outcome.params <- function(lambda_0, lambda_1, lambda_2, sd.noise) { 
+  outcome.params <- list()
+  outcome.params$lambda_0 <- lambda_0
+  outcome.params$lambda_1 <- lambda_1
+  outcome.params$lambda_2 <- lambda_2
+  outcome.params$sd.noise <- sd.noise
+  
+  return(outcome.params)
+}
+
+get.stochastic.vars <- function(num, steps, sdnoise, noise) { 
+  stochastic.vars <- lapply(1:steps, function(x) { 
+    if(noise) return(rnorm(num, 0, sdnoise))
+    else return(matrix(0,num,1))
+  })
+  names(stochastic.vars) <- paste0("t", 1:steps)
+  
+  return(stochastic.vars)
+}
+
 treatment.assignment <- function(g, clusters, prob=0.5) { 
   return(rbinom(length(unique(clusters)), 1, prob))
 }
