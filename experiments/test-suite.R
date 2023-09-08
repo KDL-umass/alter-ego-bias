@@ -1,3 +1,4 @@
+source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/adversary-experiment.R")
 source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/multiple-account-experiment.R")
 
 test.mult.config <- function(idx, setting, configs, trials, all=FALSE) { 
@@ -36,7 +37,7 @@ test.mult.config <- function(idx, setting, configs, trials, all=FALSE) {
     
     results <- rbind(results, bias.behavior.ATE)
     # write.table(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/facebook-sybil-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"), append = TRUE , col.names = FALSE,sep = ",")
-    write.csv(results, paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/results/new-",setting,"-results-", graph.params$graph.type, "-", outcome.params["lambda_1"], "-", outcome.params["lambda_2"], "-", i+50, ".csv"))
+    write.csv(results, paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/results/new-",setting,"-results-", graph.params$graph.type, "-", outcome.params["lambda_1"], "-", outcome.params["lambda_2"], "-", i+20, ".csv"))
   }
 }
 
@@ -76,7 +77,7 @@ test.sybil.config <- function(idx, configs, trials, all=FALSE) {
     
     results <- rbind(results, bias.behavior.ATE)
     # write.table(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/sybil-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"), append = TRUE , col.names = FALSE,sep = ",")
-    write.csv(results, paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/results/facebook-sybil-sun-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"))
+    write.csv(results, paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/results/facebook-sybil-sun-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i+10, ".csv"))
   }
 }
 
