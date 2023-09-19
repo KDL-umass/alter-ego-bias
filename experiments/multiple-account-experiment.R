@@ -121,49 +121,29 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
     
     bias.behavior <- calculate.ATE.various(length(all.selected), graph.properties, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior, selected=all.selected, benign=TRUE)
   }
-  
-  if(graph.params$graph.type != "facebook"){
-    ads.left <- rep(0,graph.properties$n)
-    ads.left[which(clone(dominating.adversaries.deg)==0)] <- 1
-    while(sum(ads.left)>=2){
-      ads <- which(ads.left==1)
-      treat <- which(treatment.assignments==1)
-      ctrl <- which(treatment.assignments==0)
-      treatment.ads <- intersect(ads, treat) 
-      control.ads <- intersect(ads, ctrl) 
-    
-      if(sum(treatment.ads)==0 | sum(control.ads)==0){ # check if there's no nodes in treatment or control
-        break
-      }
-      
-      selected <- select.adversaries(ads.left, treatment.assignments, ncp.params$setting)
-      adversaries[selected] <- 1
-      ads.left[selected] <- 0
-      all.selected <- append(all.selected, list(selected))
-      
-      ncp.params$max.dom.adv <- ncp.params$max.dom.adv-1
-      ncp.params$num.adv <- sum(adversaries)
-      bias.behavior <- calculate.ATE.various(length(all.selected), graph.properties, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior, selected=all.selected, benign=TRUE)
-      print(bias.behavior)
-    }
-  }
-  else{
-    while(sum(ads.left)>=2){
-      ads <- which(ads.left==1)
-      treat <- which(treatment.assignments==1)
-      ctrl <- which(treatment.assignments==0)
-      treatment.ads <- intersect(ads, treat)
-      control.ads <- intersect(ads, ctrl)
-      
-      selected <- select.adversaries(ads.left, treatment.assignments, "random")
-      adversaries[selected] <- 1
-      ads.left[selected] <- 0
-      all.selected <- append(all.selected, list(selected))
 
-      ncp.params$max.dom.adv <- ncp.params$max.dom.adv-1
-      ncp.params$num.adv <- sum(adversaries)
+  while(sum(ads.left)>=2){
+    ads <- which(ads.left==1)
+    treat <- which(treatment.assignments==1)
+    ctrl <- which(treatment.assignments==0)
+    treatment.ads <- intersect(ads, treat)
+    control.ads <- intersect(ads, ctrl)
+    
+    selected <- select.adversaries(ads.left, treatment.assignments, "random")
+    adversaries[selected] <- 1
+    ads.left[selected] <- 0
+    all.selected <- append(all.selected, list(selected))
+
+    ncp.params$max.dom.adv <- ncp.params$max.dom.adv-1
+    ncp.params$num.adv <- sum(adversaries)
+
+    if(graph.params$graph.type != "facebook"){
+      if(length(all.selected) %% 10 == 0){
+        bias.behavior <- calculate.ATE.various(length(all.selected), graph.properties, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior, selected=all.selected, benign=TRUE)
+      }
+    }
+    else{
       bias.behavior <- calculate.ATE.various(length(all.selected), graph.properties, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior, selected=all.selected, benign=TRUE)
-      print(bias.behavior)
     }
   }
 
