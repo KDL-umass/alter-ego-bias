@@ -117,7 +117,6 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
     all.selected <- append(all.selected, list(selected))
 
     ncp.params$max.dom.adv <- ncp.params$max.dom.adv-1
-    ncp.params$num.adv <- sum(adversaries)
     
     bias.behavior <- calculate.ATE.various(length(all.selected), graph.properties, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior, selected=all.selected, benign=TRUE)
   }
@@ -135,7 +134,6 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
     all.selected <- append(all.selected, list(selected))
 
     ncp.params$max.dom.adv <- ncp.params$max.dom.adv-1
-    ncp.params$num.adv <- sum(adversaries)
 
     if(graph.params$graph.type != "facebook"){
       if(length(all.selected) %% 10 == 0){
