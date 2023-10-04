@@ -71,13 +71,16 @@ calculate.ATE.various <- function(idx, graph.properties, adversaries, outcome.pa
   # calculate outcome with adversaries
   ncp.params <- exposure.probs(ncp.params, graph.properties, treatment.assignments, adversaries)
   outcome.adv <- outcome.model(outcome.params, treatment.assignments, graph.properties, adversaries, ncp.params, stochastic.vars, selected, benign)
-
+  
+  print(treatment.assignments)
   # estimate ATE using the Gui framework
   lm.estimator.gui <- lam.I(graph.properties, treatment.assignments, outcome.adv)
   gui.beta <- lm.estimator.gui$coefficients[2]
   gui.gamma <- lm.estimator.gui$coefficients[3]
   ATE.adv.gui <- gui.beta + gui.gamma
-  
+  print("ATE.adv.gui")
+  print(ATE.adv.gui)
+
   over.dom.max <- ifelse(ncp.params$setting == "dominating", FALSE, ncp.params$max.dom.adv < sum(adversaries))
   if(idx == 0) over.dom.max <- FALSE
   ad.inf <- sum(ncp.params$influence.as.ncp[which(adversaries==1)])/graph.properties$n
@@ -107,7 +110,7 @@ exposure.probs <- function(ncp.params, graph.properties, treatment.assignments, 
   control.adv <- adversaries - treated.adv
   
   ncp.params$empty <- as.vector(matrix(0, 1, graph.properties$n))
-  # print(as.vector(adversaries))
+  #print(as.vector(adversaries))
   ncp.params$ncp.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(adversaries) / graph.properties$degrees))
   ncp.params$ncp.treat.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(treated.adv) / graph.properties$degrees))
   ncp.params$ncp.control.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(control.adv) / graph.properties$degrees))
@@ -116,7 +119,9 @@ exposure.probs <- function(ncp.params, graph.properties, treatment.assignments, 
   
   ncp.params$treatment.exposure.neighbors <-as.vector( t(graph.properties$adj %*% treatment.assignments / graph.properties$degrees))
   ncp.params$influence.as.ncp <- colSums(graph.properties$transition)
-  
+  print("ncp.params")
+  print(ncp.params$influence.as.ncp)
+  print(ncp.params$treatment.exposure.neighbors)
   return(ncp.params)
 }
 
@@ -152,7 +157,7 @@ outcome.model <- function(outcome.params, treat, graph.properties, adversaries, 
       # print(selected)
   }
   # print("after")
-  # print(out.t3)
+  print(out.t3)
 
   return(out.t3) 
 }

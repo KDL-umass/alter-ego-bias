@@ -5,7 +5,8 @@ build.graph.params <- function(configs, i) {
   if(as.character(configs[i,]$graph.type) == "small-world") graph.params <- sw.params(configs[i,]$size, configs[i,]$degree, configs[i,]$p)
   if(as.character(configs[i,]$graph.type) == "sbm") graph.params <- sbm.params(configs[i,]$size, configs[i,]$mu)
   if(as.character(configs[i,]$graph.type) == "forest-fire") graph.params <- ff.params(configs[i,]$size, configs[i,]$fw, configs[i,]$bw)
-  if(as.character(configs[i,]$graph.type) %in% c("polyblogs", "facebook")) { 
+  if(as.character(configs[i,]$graph.type) == "full") graph.params <- full.params(configs[i,]$size)
+  if(as.character(configs[i,]$graph.type) %in% c("polyblogs", "facebook", "twitch")) { 
     graph.params <- list()
     graph.params$graph.type <- as.character(configs[i,]$graph.type)
   }  
@@ -24,6 +25,14 @@ get.graph.properties <- function(g) {
   graph.properties$transition <-  graph.properties$degree.inv %*% graph.properties$adj 
   
   return(graph.properties)
+}
+
+full.params <- function(n) {
+  graph.params <- list()
+  graph.params$graph.type <- "full"
+  graph.params$n <- n
+
+  return(graph.params)
 }
 
 barabasi.params <- function(n, power) { 
@@ -81,6 +90,10 @@ generate.graph <- function(graph.params) {
     
     g <- barabasi.game(graph.params$n, graph.params$power, out.seq=add.edges, directed=FALSE)    
   }
+
+  if(graph.type == "full") {
+    g <- make_full_graph(graph.params$n, directed=FALSE, loops=FALSE)
+  }
   
   if(graph.type == "sbm") { 
     edg <- read.csv(paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/synthetic/sbms/adj/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
@@ -119,6 +132,18 @@ generate.graph <- function(graph.params) {
     g <- graph_from_adjacency_matrix(adj)
     g <- as.undirected(g)
     
+  }
+
+  if(graph.type == "twitch") {
+    edg <- read.csv(paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/snap/twitch/large_twitch_edges.csv"), sep=",", header=FALSE)
+    edg <- as.matrix(edg)+1
+
+    graph.params$n <- max(edg)
+    adj <- matrix(0, graph.params$n, graph.params$n)
+    for(i in 1:dim(edg)[1]) adj[edg[i,1],edg[i,2]] <- 1
+    g <- graph_from_adjacency_matrix(adj)
+    g <- as.undirected(g)
+
   }
   
   return(g)
