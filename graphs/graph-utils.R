@@ -6,7 +6,7 @@ build.graph.params <- function(configs, i) {
   if(as.character(configs[i,]$graph.type) == "sbm") graph.params <- sbm.params(configs[i,]$size, configs[i,]$mu)
   if(as.character(configs[i,]$graph.type) == "forest-fire") graph.params <- ff.params(configs[i,]$size, configs[i,]$fw, configs[i,]$bw)
   if(as.character(configs[i,]$graph.type) == "full") graph.params <- full.params(configs[i,]$size)
-  if(as.character(configs[i,]$graph.type) %in% c("polyblogs", "facebook", "twitch")) { 
+  if(as.character(configs[i,]$graph.type) %in% c("polyblogs", "facebook")) { 
     graph.params <- list()
     graph.params$graph.type <- as.character(configs[i,]$graph.type)
   }  
@@ -92,7 +92,14 @@ generate.graph <- function(graph.params) {
   }
 
   if(graph.type == "full") {
-    g <- make_full_graph(graph.params$n, directed=FALSE, loops=FALSE)
+    g1 <- make_full_graph(graph.params$n/2, directed=FALSE, loops=FALSE)
+    g2 <- make_full_graph(graph.params$n/2, directed=FALSE, loops=FALSE)
+    V(g1)$name <- 1:graph.params$n/2
+    V(g2)$name <- (graph.params$n/2+1):graph.params$n
+    attrs <- rbind(as_data_frame(g1, "vertices"), as_data_frame(g2, "vertices"))
+    el <- rbind(as_data_frame(g1), as_data_frame(g2))
+    g <- graph_from_data_frame(el, directed = FALSE, vertices = attrs)
+    g <- g + edge(c(1,graph.params$n))
   }
   
   if(graph.type == "sbm") { 
@@ -132,18 +139,6 @@ generate.graph <- function(graph.params) {
     g <- graph_from_adjacency_matrix(adj)
     g <- as.undirected(g)
     
-  }
-
-  if(graph.type == "twitch") {
-    edg <- read.csv(paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/snap/twitch/large_twitch_edges.csv"), sep=",", header=FALSE)
-    edg <- as.matrix(edg)+1
-
-    graph.params$n <- max(edg)
-    adj <- matrix(0, graph.params$n, graph.params$n)
-    for(i in 1:dim(edg)[1]) adj[edg[i,1],edg[i,2]] <- 1
-    g <- graph_from_adjacency_matrix(adj)
-    g <- as.undirected(g)
-
   }
   
   return(g)

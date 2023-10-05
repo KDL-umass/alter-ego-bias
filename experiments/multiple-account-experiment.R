@@ -47,18 +47,18 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
   
   # generate graph clustering
   clusters <- generate.clusters(graph.properties$g, clustering)
-  if(sum(clusters==1)==graph.properties$n & graph.params$graph.type=="full") clusters[sample(1:graph.properties$n, graph.properties$n/2)] <- 2
-  else if(sum(clusters==1)==graph.properties$n) stop("Only one cluster found")
+  # if(sum(clusters==1)==graph.properties$n & graph.params$graph.type=="full") clusters[sample(1:graph.properties$n, graph.properties$n/2)] <- 2
+  if(sum(clusters==1)==graph.properties$n) stop("Only one cluster found")
   print("clusters")
   print(clusters)
 
   # assign treatment 
   treatment <- treatment.assignment(graph.properties$g, clusters)
-  if(graph.params$graph.type=="full"){
-    treatment.assignments <- clusters
-    treatment.assignments[clusters==2] <- 0
-  }
-  else treatment.assignments <- treatment[clusters]
+  # if(graph.params$graph.type=="full"){
+  #   treatment.assignments <- clusters
+  #   treatment.assignments[clusters==2] <- 0
+  # }
+  treatment.assignments <- treatment[clusters]
   print("treatment")
   print(treatment.assignments)
 
