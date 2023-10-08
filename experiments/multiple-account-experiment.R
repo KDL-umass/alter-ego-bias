@@ -47,16 +47,16 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
   
   # generate graph clustering
   clusters <- generate.clusters(graph.properties$g, clustering)
-  if(sum(clusters==1)==graph.properties$n & graph.params$graph.type=="full") clusters[graph.properties$n/2:graph.properties$n] <- 2
-  else if(sum(clusters==1)==graph.properties$n) stop("Only one cluster found")
+  # if(sum(clusters==1)==graph.properties$n & graph.params$graph.type=="chain") clusters[graph.properties$n/2:graph.properties$n] <- 2
+  if(sum(clusters==1)==graph.properties$n) stop("Only one cluster found")
 
   # assign treatment 
   treatment <- treatment.assignment(graph.properties$g, clusters)
-  if(graph.params$graph.type=="full"){
-    treatment.assignments <- clusters
-    treatment.assignments[clusters==2] <- 0
-  }
-  else treatment.assignments <- treatment[clusters]
+  # if(graph.params$graph.type=="chain"){
+  #   treatment.assignments <- clusters
+  #   treatment.assignments[clusters==2] <- 0
+  # }
+  treatment.assignments <- treatment[clusters]
   print("treatment.assignments")
   print(treatment.assignments)
 
@@ -84,9 +84,10 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
       dominating.adversaries.deg <- sample(1:graph.properties$n,ncp.params$num.adv,replace = FALSE)
     }
   }
-  else if(graph.params$graph.type=="chain"){
+  else if(graph.params$graph.type=="fan"){
     dominating.adversaries.deg <- matrix(0, 1, graph.properties$n)
-    dominating.adversaries.deg[c(FALSE, TRUE)] <- 1
+    dominating.adversaries.deg[1] <- 1
+    dominating.adversaries.deg[graph.properties$n/2+1] <- 1
   } 
   else { 
     adversary.list <- determine.adversaries(graph.properties, ncp.params)
@@ -146,7 +147,7 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
       bias.behavior <- calculate.ATE.various(length(all.selected), graph.properties, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior, selected=all.selected, benign=TRUE)
     }
   }
-  
+
   ncp.params$max.dom.adv <- max(sum(dominating.adversaries.deg), ncp.params$max.dom.adv)
   
   bias.behavior$index <- as.numeric(bias.behavior$index)

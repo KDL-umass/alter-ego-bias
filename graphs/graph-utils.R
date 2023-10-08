@@ -5,7 +5,7 @@ build.graph.params <- function(configs, i) {
   if(as.character(configs[i,]$graph.type) == "small-world") graph.params <- sw.params(configs[i,]$size, configs[i,]$degree, configs[i,]$p)
   if(as.character(configs[i,]$graph.type) == "sbm") graph.params <- sbm.params(configs[i,]$size, configs[i,]$mu)
   if(as.character(configs[i,]$graph.type) == "forest-fire") graph.params <- ff.params(configs[i,]$size, configs[i,]$fw, configs[i,]$bw)
-  if(as.character(configs[i,]$graph.type) == "chain") graph.params <- chain.params(configs[i,]$size)
+  if(as.character(configs[i,]$graph.type) == "fan") graph.params <- fan.params(configs[i,]$size)
   if(as.character(configs[i,]$graph.type) %in% c("polyblogs", "facebook")) { 
     graph.params <- list()
     graph.params$graph.type <- as.character(configs[i,]$graph.type)
@@ -27,9 +27,9 @@ get.graph.properties <- function(g) {
   return(graph.properties)
 }
 
-chain.params <- function(n) {
+fan.params <- function(n) {
   graph.params <- list()
-  graph.params$graph.type <- "chain"
+  graph.params$graph.type <- "fan"
   graph.params$n <- n
 
   return(graph.params)
@@ -91,12 +91,15 @@ generate.graph <- function(graph.params) {
     g <- barabasi.game(graph.params$n, graph.params$power, out.seq=add.edges, directed=FALSE)    
   }
 
-  if(graph.type == "chain") {
+  if(graph.type == "fan") {
     g <- make_empty_graph(n = graph.params$n, directed = FALSE)
-    V(g)$name <- 1:(graph.params$n)
-    for(i in 1:graph.params$n-1){
-      g <- g + edge(c(i, i+1))
+    for(i in seq(2, graph.params$n/2, 1)){
+      g <- g + edge(c(1, i))
     }
+    for(i in seq(graph.params$n/2+2, graph.params$n, 1)){
+      g <- g + edge(c(graph.params$n/2+1, i))
+    }
+    g <- g + edge(c(2,graph.params$n))
   }
   if(graph.type == "sbm") { 
     edg <- read.csv(paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/synthetic/sbms/adj/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
