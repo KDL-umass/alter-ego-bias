@@ -36,8 +36,7 @@ test.mult.config <- function(idx, setting, configs, trials, all=FALSE) {
     bias.behavior.ATE$adv.bias <- bias.behavior.ATE$nonadv.ATE - bias.behavior.ATE$ATE.adv.gui
     
     results <- rbind(results, bias.behavior.ATE)
-    # write.table(results, paste0("/Users/kavery/workspace/non-cooperative-spillover/results/facebook-sybil-results-", graph.params$graph.type, "-", outcome.params["lambda_2"], "-", i, ".csv"), append = TRUE , col.names = FALSE,sep = ",")
-    write.csv(results, paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/results/new-",setting,"-results-", graph.params$graph.type, "-", outcome.params["lambda_1"], "-", outcome.params["lambda_2"], "-", i, ".csv"))
+    write.csv(results, paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/results/new-",setting,"-results-", graph.params$graph.type, "-", outcome.params["lambda_1"], "-", outcome.params["lambda_2"], "-", i+20, ".csv"))
   }
 }
 
@@ -64,7 +63,7 @@ test.all.mult <- function(trials, all=FALSE) {
 args <- commandArgs(trailingOnly = TRUE)
 print(args)
 idx <- as.integer(args[1])
-configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_adv_configurations.csv")
+configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_adv_configurations_rw.csv")
 setting <- args[2]
 trials <- as.integer(args[3])
 test.mult.config(idx, setting, configs, trials, FALSE)
