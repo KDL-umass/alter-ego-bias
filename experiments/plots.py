@@ -75,23 +75,25 @@ def synthetic_total_plot():
     plt.show()
 
 
-def facebook_total_plot():
+def individual_total_plot(name):
     dom_filenames = []
     rand_filenames = []
     fig, ax = plt.subplots(nrows=4)
-    fig.set_size_inches(6,6.5)
+    fig.set_size_inches(3,6.5)
     lambda2 = {"0":0, "0.1":1, "0.5":2, "1":3}
 
     for l2 in lambda2.keys():
-        for j in range(5, 6, 5):
-            dom_filenames.append("/Users/kavery/workspace/non-cooperative-spillover/results/paper_csvs/facebook/new-dominating-results-facebook-1-"+l2+"-"+str(j)+".csv")
+        for j in range(10, 11, 10):
+            dom_filenames.append("/Users/kavery/workspace/non-cooperative-spillover/results/paper_csvs/new-dominating-results-"+name+"-1-"+l2+"-"+str(j)+".csv")
             dom_dfs = combine_files(dom_filenames)
-            dom_dfs["n"] = 4039
+            if name=="facebook":
+                dom_dfs["n"] = 4039
             dom_dfs = column_ops(dom_dfs)
 
-            rand_filenames.append("/Users/kavery/workspace/non-cooperative-spillover/results/paper_csvs/facebook/new-random-results-facebook-1-"+l2+"-"+str(j)+".csv")
+            rand_filenames.append("/Users/kavery/workspace/non-cooperative-spillover/results/paper_csvs/new-random-results-"+name+"-1-"+l2+"-"+str(j)+".csv")
             rand_dfs = combine_files(rand_filenames)
-            rand_dfs["n"] = 4039
+            if name=="facebook":
+                rand_dfs["n"] = 4039
             rand_dfs = column_ops(rand_dfs)
 
             print(dom_dfs.head())
@@ -114,5 +116,65 @@ def facebook_total_plot():
     plt.show()
 
 
+def spillover_plot_dfs(dfs, ax, color, linestyle):
+    mean = dfs.groupby("pt.adversaries")["diff.norm"].agg("mean")
+    num_adversaries = dfs.groupby("pt.adversaries")["pt.adversaries"].agg("first")
+    ci = dfs.groupby("pt.adversaries")["diff.norm"].apply(lambda group: 1.96*(group.std()/np.sqrt(len(group))) )
+
+    if linestyle == "solid":
+        mean = mean - num_adversaries
+    if linestyle == "dashed":
+        mean = mean - num_adversaries/2
+
+    handle = ax.plot(num_adversaries, mean, color=color, linestyle=linestyle)
+    ax.set_xticks([0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
+    ax.set_yticks([0.0, 0.25, 0.5, 0.75, 1.0])
+    ax.grid(alpha=0.5)
+    ax.set_ylim(0,1)
+    ax.set_xlim(0,0.5)
+    ax.fill_between(num_adversaries, mean-ci, mean+ci, facecolor=color, alpha=0.2)
+    return handle
+
+def spillover_plot():
+    dom_filenames = []
+    rand_filenames = []
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+    fig.set_size_inches(2.5,2.5)
+    # model_color = {"sbm": "blue", "forest-fire": "green", "full": "orange"}
+    # model_name = {"sbm": "SBM", "forest-fire": "forest fire", "full": "full"}
+
+    # for i, model in enumerate(model_color.keys()):
+    for j in range(10, 11, 10):
+    
+        dom_filenames.append("/Users/kavery/workspace/non-cooperative-spillover/results/paper_csvs/new-dominating-results-"+"full"+"-"+"1"+"-"+"1"+"-"+str(j)+".csv")
+        dom_dfs = combine_files(dom_filenames)
+        dom_dfs = column_ops(dom_dfs)
+
+        rand_filenames.append("/Users/kavery/workspace/non-cooperative-spillover/results/paper_csvs/new-random-results-"+"full"+"-"+"1"+"-"+"1"+"-"+str(j)+".csv")
+        rand_dfs = combine_files(rand_filenames)
+        rand_dfs = column_ops(rand_dfs)
+
+    worst_handle = spillover_plot_dfs(dom_dfs, ax, "blue", "solid")
+    rand_handle = spillover_plot_dfs(rand_dfs, ax, "blue", "dashed")
+
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+    ax.set_xticklabels(["0.0", "0.1", "0.2", "0.3", "0.4", "0.5"])
+    ax.set_yticklabels(["0.0", "0.25", "0.5", "0.75", "1.0"])
+    
+    # ax.set_xlabel(model_name[model]) # \u03BB is escaped unicode for lowercase lambda
+    # ax.xaxis.set_label_position("top")
+    ax.set_ylabel("\u03BB2="+"1",rotation=-90,labelpad=15)
+    ax.yaxis.set_label_position("right")
+
+    leg = fig.legend([worst_handle[0], rand_handle[0]], ["worst-case", "random"], loc="upper center", ncol=2,)
+    leg.legendHandles[0].set_color("black")
+    leg.legendHandles[1].set_color("black")
+    fig.supxlabel('Alter ego fraction of network')
+    fig.supylabel('Normalized bias from spillover')
+    plt.show()
+
+
 if __name__=='__main__':
-    facebook_total_plot()
+    # individual_total_plot("facebook")
+    spillover_plot()

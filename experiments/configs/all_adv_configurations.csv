@@ -11,7 +11,7 @@
 "10","forest-fire",NA,NA,NA,NA,0.37,0.33,1000,8,-1.5,1.0,1.0
 "11","sbm",NA,NA,NA,0.2,NA,NA,1000,5,-1.5,1.0,1.0
 "12","small-world",5,0.05,NA,NA,NA,NA,1000,2,-1.5,1.0,1.0
-"13","full",NA,NA,NA,NA,NA,NA,1000,1,-1.5,1.0,0.0
-"14","full",NA,NA,NA,NA,NA,NA,1000,1,-1.5,1.0,0.1
-"15","full",NA,NA,NA,NA,NA,NA,1000,1,-1.5,1.0,0.5
-"16","full",NA,NA,NA,NA,NA,NA,1000,1,-1.5,1.0,1.0
+"13","chain",NA,NA,NA,NA,NA,NA,1000,1,-1.5,1.0,0.0
+"14","chain",NA,NA,NA,NA,NA,NA,1000,1,-1.5,1.0,0.1
+"15","chain",NA,NA,NA,NA,NA,NA,1000,1,-1.5,1.0,0.5
+"16","chain",NA,NA,NA,NA,NA,NA,1000,1,-1.5,1.0,1.0
