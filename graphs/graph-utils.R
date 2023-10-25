@@ -1,15 +1,10 @@
 library(igraph)
 
 build.graph.params <- function(configs, i) { 
-  if(as.character(configs[i,]$graph.type) == "barabasi-albert") graph.params <- barabasi.params(configs[i,]$size, configs[i,]$power)
   if(as.character(configs[i,]$graph.type) == "small-world") graph.params <- sw.params(configs[i,]$size, configs[i,]$degree, configs[i,]$p)
   if(as.character(configs[i,]$graph.type) == "sbm") graph.params <- sbm.params(configs[i,]$size, configs[i,]$mu)
   if(as.character(configs[i,]$graph.type) == "forest-fire") graph.params <- ff.params(configs[i,]$size, configs[i,]$fw, configs[i,]$bw)
-  if(as.character(configs[i,]$graph.type) == "fan") graph.params <- fan.params(configs[i,]$size)
-  if(as.character(configs[i,]$graph.type) %in% c("polyblogs", "facebook")) { 
-    graph.params <- list()
-    graph.params$graph.type <- as.character(configs[i,]$graph.type)
-  }  
+  if(as.character(configs[i,]$graph.type) == "stars") graph.params <- stars.params(configs[i,]$size)
   
   return(graph.params)
 }
@@ -27,20 +22,11 @@ get.graph.properties <- function(g) {
   return(graph.properties)
 }
 
-fan.params <- function(n) {
+stars.params <- function(n) {
   graph.params <- list()
-  graph.params$graph.type <- "fan"
+  graph.params$graph.type <- "stars"
   graph.params$n <- n
 
-  return(graph.params)
-}
-
-barabasi.params <- function(n, power) { 
-  graph.params <- list()
-  graph.params$graph.type <- "barabasi-albert"
-  graph.params$n <- n
-  graph.params$power <- power
-  
   return(graph.params)
 }
 
@@ -82,16 +68,8 @@ generate.graph <- function(graph.params) {
     
     g <- watts.strogatz.game(1, graph.params$n, graph.params$degree, graph.params$p)
   }
-  
-  if(graph.type == "barabasi-albert") { 
-    if(graph.params$n == 500) add.edges <- rbinom(graph.params$n, 1, 0.7)+2
-    if(graph.params$n == 1000) add.edges <- rbinom(graph.params$n, 1, 0.7)+4
-    if(graph.params$n == 5000) add.edges <- rbinom(graph.params$n, 1, 0.9)+24
-    
-    g <- barabasi.game(graph.params$n, graph.params$power, out.seq=add.edges, directed=FALSE)    
-  }
 
-  if(graph.type == "fan") {
+  if(graph.type == "stars") {
     g <- make_empty_graph(n = graph.params$n, directed = FALSE)
     for(i in seq(2, graph.params$n/2, 1)){
       g <- g + edge(c(1, i))
@@ -122,12 +100,6 @@ generate.graph <- function(graph.params) {
       g <- forest.fire.game(n=graph.params$n, fw.prob = graph.params$forward.prob, bw.factor = bw.factor, directed = FALSE)  
       edge_count <- sum(get.adjacency(g))/2
     }
-  }
-  
-  if(graph.type == "polyblogs") { 
-    g <- read_graph(file = "/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/snap/polblogs/polblogs.gml", format = "gml")
-    cl <- clusters(g)
-    g <- induced_subgraph(g, which(cl$membership == which.max(cl$csize)))
   }
   
   if(graph.type == "facebook") { 
@@ -215,10 +187,6 @@ test.sbm <- function() {
   sbm.params(1000, 0.2)
 }
 
-test.barabasi <- function() { 
-  barabasi.params(1000, 0.3)
-}
-
 test.ff <- function() { 
   ff.params(1000, 0.37, 0.25)  
 }
@@ -237,16 +205,6 @@ test.sbm.edges <- function() {
     for(j in c(0.1, 0.2, 0.3)) { 
       graph.params <- sbm.params(i,j)  
       cat(paste("sbm", i, j))
-      test.graph.properties(graph.params)
-    }  
-  }
-}
-
-test.barabasi.edges <- function() { 
-  for(i in c(500,1000,5000)) { 
-    for(j in c(0.1, 0.3, 0.5)) { 
-      graph.params <- barabasi.params(i,j)  
-      cat(paste("barabasi", i, j))
       test.graph.properties(graph.params)
     }  
   }

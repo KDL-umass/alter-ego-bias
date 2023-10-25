@@ -1,7 +1,7 @@
 source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/experiment-utils.R")
 source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/multiple-account-experiment.R")
 
-test.mult.config <- function(idx, setting, configs, trials, all=FALSE) { 
+test.config <- function(idx, setting, configs, trials, all=FALSE) { 
   cat("Running", idx, "\n")
   print(configs[idx,])
   
@@ -40,32 +40,9 @@ test.mult.config <- function(idx, setting, configs, trials, all=FALSE) {
   }
 }
 
-test <- function() { 
-  test.all(100)  
-}
-
-test.all <- function(trials, all=FALSE) { 
-  configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_adv_configurations.csv")
-  
-  for(idx in 1:length(configs[[1]])) { 
-    test.single.config(idx, configs, trials, all)
-  }
-}
-
-test.all.mult <- function(trials, all=FALSE) { 
-  configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_adv_configurations.csv")
-  
-  for(idx in 1:length(configs[[1]])) { 
-    test.mult.config(idx, configs, trials, all)
-  }
-}
-
 args <- commandArgs(trailingOnly = TRUE)
-print(args)
 idx <- as.integer(args[1])
 configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_adv_configurations.csv")
 setting <- args[2]
 trials <- as.integer(args[3])
-test.mult.config(idx, setting, configs, trials, FALSE)
-
-# test.all.mult(10)  
+test.config(idx, setting, configs, trials, FALSE)

@@ -1,4 +1,4 @@
 # Configs
 Description of all experiment config options.
 
-Descripton of config files from experiments. 
+Description of config files from experiments. 

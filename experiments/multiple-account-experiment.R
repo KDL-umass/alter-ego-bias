@@ -39,17 +39,15 @@ select.adversaries <- function(adversaries, treatment.assignments, setting) {
 multiple.account.experiment <- function(graph.params, clustering, ncp.params, outcome.params, setting="dominating") { 
   # generate graph structure
   g <- generate.graph(graph.params)
-  #g <- as.undirected(g)
   graph.properties <- get.graph.properties(g)
   graph.params$n <- graph.properties$n
   V(g)$name <- 1:graph.properties$n
   
   avg.degree <- mean(graph.properties$degrees)
-  print(graph.properties$n)
 
   # generate graph clustering
   clusters <- generate.clusters(graph.properties$g, clustering)
-  if(graph.params$graph.type=="fan"){
+  if(graph.params$graph.type=="stars"){
     clusters <- rep(0,graph.properties$n)
     clusters[1:graph.properties$n/2] <- 1
     clusters[(graph.properties$n/2+1):graph.properties$n] <- 2
@@ -58,7 +56,7 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
 
   # assign treatment 
   treatment <- treatment.assignment(graph.properties$g, clusters)
-  if(graph.params$graph.type=="fan"){
+  if(graph.params$graph.type=="stars"){
     treatment.assignments <- clusters
     treatment.assignments[clusters==2] <- 0
   }
@@ -74,7 +72,6 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
   
   bias.behavior <- data.frame(index=numeric(), size.of.dom=logical(), method=character(), pt.uncovered=numeric(), adversary.influence=numeric(), ATE.true=numeric(), ATE.adv.gui=numeric(), gui.beta=numeric(), gui.gamma=numeric(), stringsAsFactors=FALSE)
   nonadv.ATE <- as.numeric(calculate.ATE.various(0, graph.properties, matrix(0,1,graph.properties$n), outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior)$ATE.adv.gui[1])
-  print(nonadv.ATE)
 
   ncp.params$setting <- setting
   ncp.params$max <- TRUE
@@ -90,7 +87,7 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
     }
     dominating.adversaries.deg[,sample(adversaries, length(adversaries))] <- 1
   }
-  else if(graph.params$graph.type=="fan"){
+  else if(graph.params$graph.type=="stars"){
     if(ncp.params$setting == "dominating"){
       dominating.adversaries.deg <- matrix(0, 1, graph.properties$n)
       dominating.adversaries.deg[1] <- 1
@@ -105,7 +102,6 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
   else { 
     adversary.list <- determine.adversaries(graph.properties, ncp.params)
     dominating.adversaries.deg <- adversary.list
-    #print(dominating.adversaries.deg)
   }
   
   ncp.params$max.dom.adv <- max(sum(dominating.adversaries.deg), ncp.params$max.dom.adv)
@@ -116,15 +112,11 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
 
   treat <- which(treatment.assignments==1)
   ctrl <- which(treatment.assignments==0)
-  print(graph.params$graph.type)
   all.selected <- list()
 
-  print(sum(ads.left))
-  #print(length(all.selected))
   total.ads <- sum(ads.left)
   # cycle through increasing numbers of adversaries
   while( (sum(ads.left)>=2 | total.ads <= 10) & length(all.selected) <= graph.properties$n/4) { 
-    #print("loop")
     ads <- which(ads.left==1)
     treat <- which(treatment.assignments==1)
     ctrl <- which(treatment.assignments==0)
@@ -133,29 +125,23 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
      
     if((sum(treatment.ads)==0 | sum(control.ads)==0) & ncp.params$setting=="dominating"){ # check if there's no nodes in treatment or control
       while(sum(treatment.ads)==0 | sum(control.ads)==0){
-        print("RAN OUT OF TREATMENT OR CONTROL NODES")
-        print(sum(ads.left))
-	ads.left <- rep(0,graph.properties$n)
+	      ads.left <- rep(0,graph.properties$n)
         ads.left[which(clone(dominating.adversaries.deg)==0)] <- 1
         ads <- which(ads.left==1)
         treat <- which(treatment.assignments==1)
         ctrl <- which(treatment.assignments==0)
         treatment.ads <- intersect(ads, treat)
         control.ads <- intersect(ads, ctrl)
-	total.ads <- total.ads + sum(ads.left)
+	      total.ads <- total.ads + sum(ads.left)
       }
     }
-    #print("before selection")
     selected <- select.adversaries(ads.left, treatment.assignments, ncp.params$setting)
-    #print("selected")
-    #print(selected)
     adversaries[selected] <- 1
     ads.left[selected] <- 0
     all.selected <- append(all.selected, list(selected))
 
     ncp.params$max.dom.adv <- ncp.params$max.dom.adv-1
     ncp.params$num.adv <- sum(adversaries)
-    #print(ncp.params$num.adv)
 
     if(graph.params$graph.type == "facebook"){
       if(length(all.selected) %% 20 == 0){
@@ -176,7 +162,6 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
   
   bias.behavior$pt.covered <- 1 - bias.behavior$pt.uncovered
   bias.behavior$nonadv.ATE <- nonadv.ATE
-  print(bias.behavior$nonadv.ATE)
   bias.behavior$avg.degree <- avg.degree
   return(bias.behavior)
 }
