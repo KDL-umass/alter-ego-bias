@@ -100,7 +100,9 @@ generate.graph <- function(graph.params) {
       g <- g + edge(c(graph.params$n/2+1, i))
     }
     g <- g + edge(c(2,graph.params$n))
+    print(length(V(g)))
   }
+
   if(graph.type == "sbm") { 
     edg <- read.csv(paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/synthetic/sbms/adj/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
     edg <- as.matrix(edg)

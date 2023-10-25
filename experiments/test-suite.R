@@ -36,7 +36,7 @@ test.mult.config <- function(idx, setting, configs, trials, all=FALSE) {
     bias.behavior.ATE$adv.bias <- bias.behavior.ATE$nonadv.ATE - bias.behavior.ATE$ATE.adv.gui
     
     results <- rbind(results, bias.behavior.ATE)
-    write.csv(results, paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/results/new-",setting,"-results-", graph.params$graph.type, "-", outcome.params["lambda_1"], "-", outcome.params["lambda_2"], "-", i, ".csv"))
+    write.csv(results, paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/results/new-",setting,"-results-", graph.params$graph.type, "-", outcome.params["lambda_1"], "-", outcome.params["lambda_2"], "-", i+5, ".csv"))
   }
 }
 
