@@ -7,36 +7,36 @@ library(bit)
 source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/graph-utils.R")
 source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/experiment-utils.R")
 
-select.adversaries <- function(adversaries, treatment.assignments, setting) {
-  ads <- which(adversaries==1)
+select.alter.egos <- function(alter.egos, treatment.assignments, setting) {
+  egos <- which(alter.egos==1)
   treat <- which(treatment.assignments==1)
   ctrl <- which(treatment.assignments==0)
   if(setting == "random") {
-    to.combine <- sample(ads, 2)
+    to.combine <- sample(egos, 2)
     return(to.combine)
   }
   else {
-    treatment.ads <- intersect(ads, treat) 
-    control.ads <- intersect(ads, ctrl) 
+    treatment.egos <- intersect(egos, treat) 
+    control.egos <- intersect(egos, ctrl) 
 
-    if(length(treatment.ads) == 1){
-      combine.treat <- as.integer(treatment.ads)
+    if(length(treatment.egos) == 1){
+      combine.treat <- as.integer(treatment.egos)
     }
     else{
-      combine.treat <- as.integer(sample(treatment.ads, 1))
+      combine.treat <- as.integer(sample(treatment.egos, 1))
     }
-    if(length(control.ads) == 1){
-      combine.ctrl <- as.integer(control.ads)
+    if(length(control.egos) == 1){
+      combine.ctrl <- as.integer(control.egos)
     }
     else{
-      combine.ctrl <- as.integer(sample(control.ads, 1))
+      combine.ctrl <- as.integer(sample(control.egos, 1))
     }
     return("selected"=c(combine.treat, combine.ctrl))
   }
 }
 
 
-multiple.account.experiment <- function(graph.params, clustering, ncp.params, outcome.params, setting="dominating") { 
+multiple.account.experiment <- function(graph.params, clustering, ego.params, outcome.params, setting="greedy") { 
   # generate graph structure
   g <- generate.graph(graph.params)
   graph.properties <- get.graph.properties(g)
@@ -70,98 +70,98 @@ multiple.account.experiment <- function(graph.params, clustering, ncp.params, ou
   }
   stochastic.vars <- get.stochastic.vars(graph.properties$n, 3, 0.1, noise)
   
-  bias.behavior <- data.frame(index=numeric(), size.of.dom=logical(), method=character(), pt.uncovered=numeric(), adversary.influence=numeric(), ATE.true=numeric(), ATE.adv.gui=numeric(), gui.beta=numeric(), gui.gamma=numeric(), stringsAsFactors=FALSE)
-  nonadv.ATE <- as.numeric(calculate.ATE.various(0, graph.properties, matrix(0,1,graph.properties$n), outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior)$ATE.adv.gui[1])
+  bias.behavior <- data.frame(index=numeric(), size.of.dom=logical(), method=character(), pt.uncovered=numeric(), alter.ego.influence=numeric(), ATE.true=numeric(), ATE.ego.gui=numeric(), gui.beta=numeric(), gui.gamma=numeric(), stringsAsFactors=FALSE)
+  nonego.ATE <- as.numeric(calculate.ATE.various(0, graph.properties, matrix(0,1,graph.properties$n), outcome.params, ego.params, treatment.assignments, stochastic.vars, bias.behavior)$ATE.ego.gui[1])
 
-  ncp.params$setting <- setting
-  ncp.params$max <- TRUE
-  ncp.params$weighting <- "inf"
-  ncp.params$num.adv <- graph.properties$n/2
+  ego.params$setting <- setting
+  ego.params$max <- TRUE
+  ego.params$weighting <- "inf"
+  ego.params$num.ego <- graph.properties$n/2
   if(graph.params$graph.type=="facebook") { 
-    dominating.adversaries.deg <- matrix(0, 1, graph.properties$n)
-    if(ncp.params$setting == "dominating"){
-      adversaries <- c(108, 3438, 1, 1685, 1913, 349, 415, 3981, 687, 699)
+    dominating.alter.egos.deg <- matrix(0, 1, graph.properties$n)
+    if(ego.params$setting == "greedy"){
+      alter.egos <- c(108, 3438, 1, 1685, 1913, 349, 415, 3981, 687, 699)
     }
     else{
-      adversaries <- sample(1:graph.properties$n,ncp.params$num.adv,replace = FALSE)
+      alter.egos <- sample(1:graph.properties$n,ego.params$num.ego,replace = FALSE)
     }
-    dominating.adversaries.deg[,sample(adversaries, length(adversaries))] <- 1
+    dominating.alter.egos.deg[,sample(alter.egos, length(alter.egos))] <- 1
   }
   else if(graph.params$graph.type=="stars"){
-    if(ncp.params$setting == "dominating"){
-      dominating.adversaries.deg <- matrix(0, 1, graph.properties$n)
-      dominating.adversaries.deg[1] <- 1
-      dominating.adversaries.deg[graph.properties$n/2+1] <- 1
+    if(ego.params$setting == "greedy"){
+      dominating.alter.egos.deg <- matrix(0, 1, graph.properties$n)
+      dominating.alter.egos.deg[1] <- 1
+      dominating.alter.egos.deg[graph.properties$n/2+1] <- 1
     }
     else{
-      dominating.adversaries.deg <- matrix(0, 1, graph.properties$n)
-      adversaries <- sample(1:graph.properties$n,ncp.params$num.adv,replace = FALSE)
-      dominating.adversaries.deg[,sample(adversaries, length(adversaries))] <- 1
+      dominating.alter.egos.deg <- matrix(0, 1, graph.properties$n)
+      alter.egos <- sample(1:graph.properties$n,ego.params$num.ego,replace = FALSE)
+      dominating.alter.egos.deg[,sample(alter.egos, length(alter.egos))] <- 1
     }
   } 
   else { 
-    adversary.list <- determine.adversaries(graph.properties, ncp.params)
-    dominating.adversaries.deg <- adversary.list
+    alter.ego.list <- determine.alter.egos(graph.properties, ego.params)
+    dominating.alter.egos.deg <- alter.ego.list
   }
   
-  ncp.params$max.dom.adv <- max(sum(dominating.adversaries.deg), ncp.params$max.dom.adv)
+  ego.params$max.dom.ego <- max(sum(dominating.alter.egos.deg), ego.params$max.dom.ego)
 
-  ncp.params$max <- FALSE
-  ads.left <- clone(dominating.adversaries.deg)
-  adversaries <- matrix(0,1,graph.properties$n)
+  ego.params$max <- FALSE
+  egos.left <- clone(dominating.alter.egos.deg)
+  alter.egos <- matrix(0,1,graph.properties$n)
 
   treat <- which(treatment.assignments==1)
   ctrl <- which(treatment.assignments==0)
   all.selected <- list()
 
-  total.ads <- sum(ads.left)
-  # cycle through increasing numbers of adversaries
-  while( (sum(ads.left)>=2 | total.ads <= 10) & length(all.selected) <= graph.properties$n/4) { 
-    ads <- which(ads.left==1)
+  total.egos <- sum(egos.left)
+  # cycle through increasing numbers of alter egos
+  while( (sum(egos.left)>=2 | total.egos <= 10) & length(all.selected) <= graph.properties$n/4) { 
+    egos <- which(egos.left==1)
     treat <- which(treatment.assignments==1)
     ctrl <- which(treatment.assignments==0)
-    treatment.ads <- intersect(ads, treat) 
-    control.ads <- intersect(ads, ctrl) 
+    treatment.egos <- intersect(egos, treat) 
+    control.egos <- intersect(egos, ctrl) 
      
-    if((sum(treatment.ads)==0 | sum(control.ads)==0) & ncp.params$setting=="dominating"){ # check if there's no nodes in treatment or control
-      while(sum(treatment.ads)==0 | sum(control.ads)==0){
-	      ads.left <- rep(0,graph.properties$n)
-        ads.left[which(clone(dominating.adversaries.deg)==0)] <- 1
-        ads <- which(ads.left==1)
+    if((sum(treatment.egos)==0 | sum(control.egos)==0) & ego.params$setting=="greedy"){ # check if there's no nodes in treatment or control
+      while(sum(treatment.egos)==0 | sum(control.egos)==0){
+	      egos.left <- rep(0,graph.properties$n)
+        egos.left[which(clone(dominating.alter.egos.deg)==0)] <- 1
+        egos <- which(egos.left==1)
         treat <- which(treatment.assignments==1)
         ctrl <- which(treatment.assignments==0)
-        treatment.ads <- intersect(ads, treat)
-        control.ads <- intersect(ads, ctrl)
-	      total.ads <- total.ads + sum(ads.left)
+        treatment.egos <- intersect(egos, treat)
+        control.egos <- intersect(egos, ctrl)
+	      total.egos <- total.egos + sum(egos.left)
       }
     }
-    selected <- select.adversaries(ads.left, treatment.assignments, ncp.params$setting)
-    adversaries[selected] <- 1
-    ads.left[selected] <- 0
+    selected <- select.alter.egos(ads.left, treatment.assignments, ego.params$setting)
+    alter.egos[selected] <- 1
+    egos.left[selected] <- 0
     all.selected <- append(all.selected, list(selected))
 
-    ncp.params$max.dom.adv <- ncp.params$max.dom.adv-1
-    ncp.params$num.adv <- sum(adversaries)
+    ego.params$max.dom.ego <- ego.params$max.dom.ego-1
+    ego.params$num.ego <- sum(alter.egos)
 
     if(graph.params$graph.type == "facebook"){
       if(length(all.selected) %% 20 == 0){
-        bias.behavior <- calculate.ATE.various(length(all.selected), graph.properties, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior, selected=all.selected, benign=TRUE)
+        bias.behavior <- calculate.ATE.various(length(all.selected), graph.properties, alter.egos, outcome.params, ego.params, treatment.assignments, stochastic.vars, bias.behavior, selected=all.selected)
       }
     }
     else{
-      bias.behavior <- calculate.ATE.various(length(all.selected), graph.properties, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior, selected=all.selected, benign=TRUE)
+      bias.behavior <- calculate.ATE.various(length(all.selected), graph.properties, alter.egos, outcome.params, ego.params, treatment.assignments, stochastic.vars, bias.behavior, selected=all.selected)
     }
   }
 
-  ncp.params$max.dom.adv <- max(sum(dominating.adversaries.deg), ncp.params$max.dom.adv)
+  ego.params$max.dom.ego <- max(sum(dominating.alter.egos.deg), ego.params$max.dom.ego)
   
   bias.behavior$index <- as.numeric(bias.behavior$index)
   bias.behavior$pt.uncovered <- as.numeric(bias.behavior$pt.uncovered)
   bias.behavior$ATE.true <- as.numeric(bias.behavior$ATE.true)
-  bias.behavior$ATE.adv.gui <- as.numeric(bias.behavior$ATE.adv.gui)
+  bias.behavior$ATE.ego.gui <- as.numeric(bias.behavior$ATE.ego.gui)
   
   bias.behavior$pt.covered <- 1 - bias.behavior$pt.uncovered
-  bias.behavior$nonadv.ATE <- nonadv.ATE
+  bias.behavior$nonego.ATE <- nonego.ATE
   bias.behavior$avg.degree <- avg.degree
   return(bias.behavior)
 }

@@ -3,7 +3,7 @@ This repo contains the code for our work on A/B testing in networks with non-coo
 
 ## Run the Experiments
 
-[REPLICATION.md](REPLICATION.md) contains installation, configuration, and run instructions for experiments and figures in the paper.
+[REPLICATION.md](REPLICATION.md) contains installation, configuration, and run instructions for experiments in the paper.
 
 ## Overview
 Given a network graph and simulation parameters identified in a configuration file, 
@@ -27,9 +27,7 @@ We provide some existing graph structures for the experiments:
 We provide a corpus of graph types used for the simulation studies in the paper, generated under the same set of parameters. 
 * **Real-World**:
 We use networks released in the SNAP Library. 
-* **Custom**:
-Instructions for adding custom graph source.
 
 Alternatively, run the scripts used to generate graphs in the corpus to generate new graphs. 
-More details at [this README](graphs/README.md).
+More details at [this README](REPLICATION.md).
 

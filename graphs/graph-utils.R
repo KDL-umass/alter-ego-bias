@@ -117,10 +117,10 @@ generate.graph <- function(graph.params) {
   return(g)
 }
 
-check.dominating.set <- function(graph.properties, adversaries) { 
-  adv <- as.matrix(adversaries)
-  adj.adversaries <- (graph.properties$adj %*% t(adv)) + t(adv)
-  return(sum(rowSums(adj.adversaries) > 0) == dim(graph.properties$adj)[1])
+check.dominating.set <- function(graph.properties, alter.egos) { 
+  ego <- as.matrix(alter.egos)
+  adj.alter.egos <- (graph.properties$adj %*% t(ego)) + t(ego)
+  return(sum(rowSums(adj.alter.egos) > 0) == dim(graph.properties$adj)[1])
 }
 
 generate.clusters <- function(g, clustering) { 

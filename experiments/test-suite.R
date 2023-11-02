@@ -6,18 +6,18 @@ test.config <- function(idx, setting, configs, trials, all=FALSE) {
   print(configs[idx,])
   
   results <- data.frame(index=numeric(), size.of.dom=logical(), method=character(), 
-                        pt.uncovered=numeric(), adversary.influence=numeric(), ATE.true=numeric(), 
+                        pt.uncovered=numeric(), alter.ego.influence=numeric(), ATE.true=numeric(), 
                         variable=numeric(), value=numeric(), pt.covered=numeric(), n=numeric(), 
-                        graph.type=character(), power=numeric(), degree=numeric(), p=numeric(), 
+                        graph.type=character(), degree=numeric(), p=numeric(), 
                         mu=numeric(), ncoms=numeric(), maxc=numeric(), minc=numeric(), 
                         lambda_0=numeric(), lambda_1=numeric(), lambda_2=numeric(), stringsAsFactors=FALSE)
   
   graph.params <- build.graph.params(configs, idx)
-  adversary.params <- list()
-  adversary.params$model <- reduction.adv.model
-  adversary.params$all <- all
-  adversary.params$setting <- setting
-  adversary.params$weighting <- "inf"
+  alter.ego.params <- list()
+  alter.ego.params$model <- reduction.ego.model
+  alter.ego.params$all <- all
+  alter.ego.params$setting <- setting
+  alter.ego.params$weighting <- "inf"
   outcome.params <- build.outcome.params(configs[idx,"lambda_0"], configs[idx,"lambda_1"], configs[idx,"lambda_2"], configs[idx,"sd.noise"])
   clustering <- "infomap"
   
@@ -25,15 +25,15 @@ test.config <- function(idx, setting, configs, trials, all=FALSE) {
     graph.params$ind <- i
     
     cat("trial", i, "\n")
-    bias.behavior.ATE <- multiple.account.experiment(graph.params, clustering, adversary.params, outcome.params, adversary.params$setting)
-    bias.behavior.ATE$adversary.influence <- as.numeric(bias.behavior.ATE$adversary.influence)
+    bias.behavior.ATE <- multiple.account.experiment(graph.params, clustering, alter.ego.params, outcome.params, alter.ego.params$setting)
+    bias.behavior.ATE$alter.ego.influence <- as.numeric(bias.behavior.ATE$alter.ego.influence)
     bias.behavior.ATE$gui.beta <- as.numeric(bias.behavior.ATE$gui.beta)
     bias.behavior.ATE$gui.gamma <- as.numeric(bias.behavior.ATE$gui.gamma)
     
     bias.behavior.ATE <- add.graph.params(bias.behavior.ATE, graph.params)
     bias.behavior.ATE <- add.outcome.params(bias.behavior.ATE, outcome.params)
     bias.behavior.ATE$graph.id <- configs[idx,"graph.no"]
-    bias.behavior.ATE$adv.bias <- bias.behavior.ATE$nonadv.ATE - bias.behavior.ATE$ATE.adv.gui
+    bias.behavior.ATE$ego.bias <- bias.behavior.ATE$nonego.ATE - bias.behavior.ATE$ATE.ego.gui
     
     results <- rbind(results, bias.behavior.ATE)
     write.csv(results, paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/results/new-",setting,"-results-", graph.params$graph.type, "-", outcome.params["lambda_1"], "-", outcome.params["lambda_2"], "-", i+5, ".csv"))
@@ -42,7 +42,7 @@ test.config <- function(idx, setting, configs, trials, all=FALSE) {
 
 args <- commandArgs(trailingOnly = TRUE)
 idx <- as.integer(args[1])
-configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_adv_configurations.csv")
+configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_ego_configurations.csv")
 setting <- args[2]
 trials <- as.integer(args[3])
 test.config(idx, setting, configs, trials, FALSE)

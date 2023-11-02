@@ -30,64 +30,64 @@ treatment.assignment <- function(g, clusters, prob=0.5) {
   return(rbinom(length(unique(clusters)), 1, prob))
 }
 
-determine.adversaries <- function(graph.properties, ncp.params) {
-  adversaries <- matrix(0, 1, graph.properties$n)
-  if(ncp.params$setting == "random") { 
+determine.alter.egos <- function(graph.properties, ego.params) {
+  alter.egos <- matrix(0, 1, graph.properties$n)
+  if(ego.params$setting == "random") { 
     rand.order <- sample(1:graph.properties$n, graph.properties$n, replace = FALSE)
-    if(ncp.params$max) { 
+    if(ego.params$max) { 
       idx <- 1
-      while(!check.dominating.set(graph.properties, adversaries)) { 
-        adversaries[rand.order[idx]] <- 1
+      while(!check.dominating.set(graph.properties, alter.egos)) { 
+        alter.egos[rand.order[idx]] <- 1
         idx <- idx + 1
       }  
     }
-    else adversaries[sample(1:graph.properties$n, ncp.params$num.adv, replace=FALSE)] <- 1
+    else alter.egos[sample(1:graph.properties$n, ego.params$num.ego, replace=FALSE)] <- 1
   }
-  if(ncp.params$setting == "dominating") {
+  if(ego.params$setting == "greedy") {
     dominating.set <- dominate.greedy.inf(graph.properties)
-    if(ncp.params$max) ncp.params$num.adv <- length(dominating.set)
-    adversaries[,sample(dominating.set, ncp.params$num.adv)] <- 1
+    if(ego.params$max) ego.params$num.ego <- length(dominating.set)
+    alter.egos[,sample(dominating.set, ego.params$num.ego)] <- 1
   }
-  return(adversaries)
+  return(alter.egos)
 }
 
 
-calculate.ATE.various <- function(idx, graph.properties, adversaries, outcome.params, ncp.params, treatment.assignments, stochastic.vars, bias.behavior, selected=NULL, benign=FALSE) { 
+calculate.ATE.various <- function(idx, graph.properties, alter.egos, outcome.params, ego.params, treatment.assignments, stochastic.vars, bias.behavior, selected=NULL) { 
   tryCatch(
     expr = {
-      uncovered.vertices <- 1 - adversaries %*% graph.properties$adj - adversaries
+      uncovered.vertices <- 1 - alter.egos %*% graph.properties$adj - alter.egos
       pt.uncovered <- sum(uncovered.vertices == 1)/graph.properties$n
     },
     error = function(e){
       print(e)
-      print("adversaries")
-      print(adversaries)
+      print("alter.egos")
+      print(alter.egos)
     }
   )
   
-  # calculate true outcome without adversaries
+  # calculate true outcome without alter egos
   ATE.true <- outcome.params$lambda_1 + outcome.params$lambda_2
   
-  # calculate outcome with adversaries
-  ncp.params <- exposure.probs(ncp.params, graph.properties, treatment.assignments, adversaries)
-  outcome.adv <- outcome.model(outcome.params, treatment.assignments, graph.properties, adversaries, ncp.params, stochastic.vars, selected, benign)
+  # calculate outcome with alter egos
+  ego.params <- exposure.probs(ego.params, graph.properties, treatment.assignments, alter.egos)
+  outcome.ego <- outcome.model(outcome.params, treatment.assignments, graph.properties, alter.egos, ego.params, stochastic.vars, selected)
   
   #print(treatment.assignments)
   # estimate ATE using the Gui framework
-  lm.estimator.gui <- lam.I(graph.properties, treatment.assignments, outcome.adv)
+  lm.estimator.gui <- lam.I(graph.properties, treatment.assignments, outcome.ego)
   gui.beta <- lm.estimator.gui$coefficients[2]
   gui.gamma <- lm.estimator.gui$coefficients[3]
-  ATE.adv.gui <- gui.beta + gui.gamma
+  ATE.ego.gui <- gui.beta + gui.gamma
 
-  over.dom.max <- ifelse(ncp.params$setting == "dominating", FALSE, ncp.params$max.dom.adv < sum(adversaries))
+  over.dom.max <- ifelse(ego.params$setting == "greedy", FALSE, ego.params$max.dom.ego < sum(alter.egos))
   if(idx == 0) over.dom.max <- FALSE
-  ad.inf <- sum(ncp.params$influence.as.ncp[which(adversaries==1)])/graph.properties$n
+  ad.inf <- sum(ego.params$influence.as.ego[which(alter.egos==1)])/graph.properties$n
   
-  method <- ifelse(ncp.params$setting=="dominating", ncp.params$weighting, ncp.params$setting)
-  if(is.null(ncp.params$setting)) method <- "none"
+  method <- ifelse(ego.params$setting=="greedy", ego.params$weighting, ego.params$setting)
+  if(is.null(ego.params$setting)) method <- "none"
   
-  # determine bias in estimate due to adversaries
-  bias.behavior[nrow(bias.behavior)+1,] <- c(idx, over.dom.max, method, pt.uncovered, ad.inf, ATE.true, ATE.adv.gui, gui.beta, gui.gamma)  
+  # determine bias in estimate due to alter egos
+  bias.behavior[nrow(bias.behavior)+1,] <- c(idx, over.dom.max, method, pt.uncovered, ad.inf, ATE.true, ATE.ego.gui, gui.beta, gui.gamma)  
   return(bias.behavior)
 }
 
@@ -100,33 +100,32 @@ lam.I <- function(graph.properties, treatment.assignments, outcome) {
 }
 
 
-exposure.probs <- function(ncp.params, graph.properties, treatment.assignments, adversaries, lambda=0.1, p=2) { 
-  nonadv <- 1 - adversaries
-  treated.nonadv <- treatment.assignments * nonadv
-  control.nonadv <- (1 - treatment.assignments) * nonadv
-  treated.adv <- treatment.assignments * adversaries
-  control.adv <- adversaries - treated.adv
+exposure.probs <- function(ego.params, graph.properties, treatment.assignments, alter.egos, lambda=0.1, p=2) { 
+  nonego <- 1 - alter.egos
+  treated.nonego <- treatment.assignments * nonego
+  control.nonego <- (1 - treatment.assignments) * nonego
+  treated.ego <- treatment.assignments * alter.egos
+  control.ego <- alter.egos - treated.ego
   
-  ncp.params$empty <- as.vector(matrix(0, 1, graph.properties$n))
-  ncp.params$ncp.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(adversaries) / graph.properties$degrees))
-  ncp.params$ncp.treat.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(treated.adv) / graph.properties$degrees))
-  ncp.params$ncp.control.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(control.adv) / graph.properties$degrees))
-  ncp.params$nonadv.treat.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(treated.nonadv) / graph.properties$degrees))
-  ncp.params$nonadv.control.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(control.nonadv) / graph.properties$degrees))
+  ego.params$empty <- as.vector(matrix(0, 1, graph.properties$n))
+  ego.params$ego.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(alter.egos) / graph.properties$degrees))
+  ego.params$ego.treat.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(treated.ego) / graph.properties$degrees))
+  ego.params$ego.control.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(control.ego) / graph.properties$degrees))
+  ego.params$nonego.treat.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(treated.nonego) / graph.properties$degrees))
+  ego.params$nonego.control.exposure.neighbors <- as.vector(t(graph.properties$adj %*% t(control.nonego) / graph.properties$degrees))
   
-  ncp.params$treatment.exposure.neighbors <-as.vector( t(graph.properties$adj %*% treatment.assignments / graph.properties$degrees))
-  ncp.params$influence.as.ncp <- colSums(graph.properties$transition)
-  return(ncp.params)
+  ego.params$treatment.exposure.neighbors <-as.vector( t(graph.properties$adj %*% treatment.assignments / graph.properties$degrees))
+  ego.params$influence.as.ego <- colSums(graph.properties$transition)
+  return(ego.params)
 }
 
-outcome.model <- function(outcome.params, treat, graph.properties, adversaries, ncp.params, stochastic.vars, selected=NULL, benign=FALSE) { 
-  treated.adv <- treat * adversaries
-  control.adv <- adversaries - treated.adv
+outcome.model <- function(outcome.params, treat, graph.properties, alter.egos, ego.params, stochastic.vars, selected=NULL) { 
+  treated.ego <- treat * alter.egos
+  control.ego <- alter.egos - treated.ego
   
   out.t0 <- matrix(0, 1, graph.properties$n)
   
   out.t1 <- outcome.params$lambda_0 + outcome.params$lambda_1 * treat + outcome.params$lambda_2 * rowSums(graph.properties$adj %*% diag(as.numeric(out.t0)) / graph.properties$degrees) + stochastic.vars$t1
-  if(!benign) out.t1[which(adversaries==1)] <- ncp.params$model(treated.adv, control.adv, outcome.params)[which(adversaries==1)]
   if(!is.null(selected)){
       for(sel in selected){
           out.t1[sel[2]] = out.t1[sel[1]]
@@ -134,7 +133,6 @@ outcome.model <- function(outcome.params, treat, graph.properties, adversaries, 
   }
   
   out.t2 <- outcome.params$lambda_0 + outcome.params$lambda_1 * treat + outcome.params$lambda_2 * rowSums(graph.properties$adj %*% diag(as.numeric(out.t1)) / graph.properties$degrees) + stochastic.vars$t2
-  if(!benign) out.t2[which(adversaries == 1)] <- ncp.params$model(treated.adv, control.adv, outcome.params)[which(adversaries == 1)]
   if(!is.null(selected)){
       for(sel in selected){
           out.t2[sel[2]] = out.t2[sel[1]]
@@ -142,7 +140,6 @@ outcome.model <- function(outcome.params, treat, graph.properties, adversaries, 
   }
 
   out.t3 <- outcome.params$lambda_0 + outcome.params$lambda_1 * treat + outcome.params$lambda_2 * rowSums(graph.properties$adj %*% diag(as.numeric(out.t2)) / graph.properties$degrees) + stochastic.vars$t3
-  if(!benign) out.t3[which(adversaries == 1)] <- ncp.params$model(treated.adv, control.adv, outcome.params)[which(adversaries == 1)]
   if(!is.null(selected)){
       for(sel in selected){
           out.t3[sel[2]] = out.t3[sel[1]]
@@ -153,7 +150,7 @@ outcome.model <- function(outcome.params, treat, graph.properties, adversaries, 
 }
 
 add.graph.params <- function(bias.behavior, graph.params) { 
-  params <- c("n", "graph.type", "power", "degree", "p", "mu", "ncoms", "maxc", "minc")
+  params <- c("n", "graph.type", "degree", "p", "mu", "ncoms", "maxc", "minc")
   
   for(pa in params) { 
     bias.behavior[[pa]] <- ifelse(!is.null(graph.params[[pa]]), graph.params[[pa]], "")  
@@ -172,11 +169,11 @@ add.outcome.params <- function(bias.behavior, outcome.params) {
   return(bias.behavior)
 }
 
-reduction.adv.model <- function(treated.adv, control.adv, outcome.params, clusters=NULL) { 
-  n <- length(treated.adv)
+reduction.ego.model <- function(treated.ego, control.ego, outcome.params, clusters=NULL) { 
+  n <- length(treated.ego)
   out <- matrix(0, 1, n)  
-  out[1,which(treated.adv==1)] <- outcome.params$lambda_0 + outcome.params$lambda_1
-  out[1,which(control.adv==1)] <- outcome.params$lambda_0 
+  out[1,which(treated.ego==1)] <- outcome.params$lambda_0 + outcome.params$lambda_1
+  out[1,which(control.ego==1)] <- outcome.params$lambda_0 
   
   return(out) 
 }

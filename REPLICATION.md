@@ -15,10 +15,17 @@ This markdown provides instructions for running the experiments in The Effect of
 2. Create graphs. 
 The forest-fire networks and small-world networks are automatically generated using igraph. SBM adjacency matrices and Facebook edge list are cached in the graphs/ folder.  
 
-The Facebook network edge list can be downloaded here: https://snap.stanford.edu/data/ego-Facebook.html. 
+The Facebook network edge list can also be downloaded here: https://snap.stanford.edu/data/ego-Facebook.html. 
 
 If you want to generate the SBMs from scratch, you can install the SBM benchmark algorithm scripts created by Fortunato et al. 
 * Main page: https://www.santofortunato.net/resources#h.p_u6MEEWAKyhN0 (Download package 1)
 * Download link: https://drive.google.com/file/d/0BwGBn8ta6pUrTG5tUGc1N2NjU2c/view?resourcekey=0-bIhuIu6lxYjgOvQMb2Pueg 
 
 ## Run the Experiments
+Run the experiments using the following command:
+
+`Rscript ./experiments/test-suit.R param1 param2 param3`
+
+param1 is the index of the line in the configuration file to use. param2 the placement strategy, which is either "random" or "greedy" (worst-case). param3 is the number of trials to run. The following example command would run the third line of the config file (not including the header) with greedy placement for 10 trials:
+
+`Rscript ./experiments/test-suit.R 3 greedy 10`
