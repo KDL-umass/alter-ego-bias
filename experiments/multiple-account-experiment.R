@@ -135,7 +135,7 @@ multiple.account.experiment <- function(graph.params, clustering, ego.params, ou
 	      total.egos <- total.egos + sum(egos.left)
       }
     }
-    selected <- select.alter.egos(ads.left, treatment.assignments, ego.params$setting)
+    selected <- select.alter.egos(egos.left, treatment.assignments, ego.params$setting)
     alter.egos[selected] <- 1
     egos.left[selected] <- 0
     all.selected <- append(all.selected, list(selected))

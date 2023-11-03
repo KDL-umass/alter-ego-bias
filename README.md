@@ -9,7 +9,7 @@ This repo contains the code for our work on A/B testing in networks with non-coo
 Given a network graph and simulation parameters identified in a configuration file, 
 * Cluster-randomized treatment assignment
 * Non-cooperative participant network set construction
-* Outcome simulation per n adversaries up to dominating set
+* Outcome simulation per n alter egos up to dominating set
 * Model fit and outcome estimation with linear estimator
 * Bias calculation in sample
 

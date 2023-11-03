@@ -5,6 +5,10 @@ build.graph.params <- function(configs, i) {
   if(as.character(configs[i,]$graph.type) == "sbm") graph.params <- sbm.params(configs[i,]$size, configs[i,]$mu)
   if(as.character(configs[i,]$graph.type) == "forest-fire") graph.params <- ff.params(configs[i,]$size, configs[i,]$fw, configs[i,]$bw)
   if(as.character(configs[i,]$graph.type) == "stars") graph.params <- stars.params(configs[i,]$size)
+  if(as.character(configs[i,]$graph.type) == "facebook") { 
+    graph.params <- list()
+    graph.params$graph.type <- as.character(configs[i,]$graph.type)
+  }  
   
   return(graph.params)
 }
