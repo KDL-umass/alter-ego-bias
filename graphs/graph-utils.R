@@ -1,11 +1,11 @@
 library(igraph)
 
 build.graph.params <- function(configs, i) { 
-  if(as.character(configs[i,]$graph.type) == "barabasi-albert") graph.params <- barabasi.params(configs[i,]$size, configs[i,]$power)
   if(as.character(configs[i,]$graph.type) == "small-world") graph.params <- sw.params(configs[i,]$size, configs[i,]$degree, configs[i,]$p)
   if(as.character(configs[i,]$graph.type) == "sbm") graph.params <- sbm.params(configs[i,]$size, configs[i,]$mu)
   if(as.character(configs[i,]$graph.type) == "forest-fire") graph.params <- ff.params(configs[i,]$size, configs[i,]$fw, configs[i,]$bw)
-  if(as.character(configs[i,]$graph.type) %in% c("polyblogs", "facebook")) { 
+  if(as.character(configs[i,]$graph.type) == "stars") graph.params <- stars.params(configs[i,]$size)
+  if(as.character(configs[i,]$graph.type) == "facebook") { 
     graph.params <- list()
     graph.params$graph.type <- as.character(configs[i,]$graph.type)
   }  
@@ -26,12 +26,11 @@ get.graph.properties <- function(g) {
   return(graph.properties)
 }
 
-barabasi.params <- function(n, power) { 
+stars.params <- function(n) {
   graph.params <- list()
-  graph.params$graph.type <- "barabasi-albert"
+  graph.params$graph.type <- "stars"
   graph.params$n <- n
-  graph.params$power <- power
-  
+
   return(graph.params)
 }
 
@@ -73,20 +72,23 @@ generate.graph <- function(graph.params) {
     
     g <- watts.strogatz.game(1, graph.params$n, graph.params$degree, graph.params$p)
   }
-  
-  if(graph.type == "barabasi-albert") { 
-    if(graph.params$n == 500) add.edges <- rbinom(graph.params$n, 1, 0.7)+2
-    if(graph.params$n == 1000) add.edges <- rbinom(graph.params$n, 1, 0.7)+4
-    if(graph.params$n == 5000) add.edges <- rbinom(graph.params$n, 1, 0.9)+24
-    
-    g <- barabasi.game(graph.params$n, graph.params$power, out.seq=add.edges, directed=FALSE)    
+
+  if(graph.type == "stars") {
+    g <- make_empty_graph(n = graph.params$n, directed = FALSE)
+    for(i in seq(2, graph.params$n/2, 1)){
+      g <- g + edge(c(1, i))
+    }
+    for(i in seq(graph.params$n/2+2, graph.params$n, 1)){
+      g <- g + edge(c(graph.params$n/2+1, i))
+    }
+    g <- g + edge(c(2,graph.params$n))
+    print(length(V(g)))
   }
-  
+
   if(graph.type == "sbm") { 
-    edg <- read.csv(paste0("graphs/synthetic/sbms/nets/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
+    edg <- read.csv(paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/synthetic/sbms/adj/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
     edg <- as.matrix(edg)
     g <- graph_from_adjacency_matrix(edg, mode="undirected")
-    
   }
   
   if(graph.type == "forest-fire") { 
@@ -104,14 +106,8 @@ generate.graph <- function(graph.params) {
     }
   }
   
-  if(graph.type == "polyblogs") { 
-    g <- read_graph(file = "graphs/snap/polblogs/polblogs.gml", format = "gml")
-    cl <- clusters(g)
-    g <- induced_subgraph(g, which(cl$membership == which.max(cl$csize)))
-  }
-  
   if(graph.type == "facebook") { 
-    edg <- read.csv(paste0("graphs/snap/facebook/facebook_combined.txt"), sep=" ", header=FALSE)
+    edg <- read.csv(paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/snap/facebook/facebook_combined.txt"), sep=" ", header=FALSE)
     edg <- as.matrix(edg)+1
     
     graph.params$n <- max(edg)
@@ -125,10 +121,10 @@ generate.graph <- function(graph.params) {
   return(g)
 }
 
-check.dominating.set <- function(graph.properties, adversaries) { 
-  adv <- as.matrix(adversaries)
-  adj.adversaries <- (graph.properties$adj %*% t(adv)) + t(adv)
-  return(sum(rowSums(adj.adversaries) > 0) == dim(graph.properties$adj)[1])
+check.dominating.set <- function(graph.properties, alter.egos) { 
+  ego <- as.matrix(alter.egos)
+  adj.alter.egos <- (graph.properties$adj %*% t(ego)) + t(ego)
+  return(sum(rowSums(adj.alter.egos) > 0) == dim(graph.properties$adj)[1])
 }
 
 generate.clusters <- function(g, clustering) { 
@@ -195,10 +191,6 @@ test.sbm <- function() {
   sbm.params(1000, 0.2)
 }
 
-test.barabasi <- function() { 
-  barabasi.params(1000, 0.3)
-}
-
 test.ff <- function() { 
   ff.params(1000, 0.37, 0.25)  
 }
@@ -217,16 +209,6 @@ test.sbm.edges <- function() {
     for(j in c(0.1, 0.2, 0.3)) { 
       graph.params <- sbm.params(i,j)  
       cat(paste("sbm", i, j))
-      test.graph.properties(graph.params)
-    }  
-  }
-}
-
-test.barabasi.edges <- function() { 
-  for(i in c(500,1000,5000)) { 
-    for(j in c(0.1, 0.3, 0.5)) { 
-      graph.params <- barabasi.params(i,j)  
-      cat(paste("barabasi", i, j))
       test.graph.properties(graph.params)
     }  
   }

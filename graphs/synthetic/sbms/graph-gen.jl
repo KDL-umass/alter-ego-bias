@@ -1,4 +1,5 @@
 using Graphs
+using DelimitedFiles
 
 function create_graphs(i)
 	graph_params = readdlm("all_graph_configurations.csv", ',')
@@ -28,13 +29,14 @@ function create_network(n, mu, netfile)
 	"generate network with SBM benchmark suite from Lancichinetti, Fortunato (2009)"
 	avgd = ceil(10/1000*n)
 	maxd = (100/1000*n)
-	readall(`./benchmark -N $n -k $avgd -maxk $maxd -mu $mu`)
+	run(`./benchmark -N $n -k $avgd -maxk $maxd -mu $mu`)
 
-	adj = round(Int64, open(readdlm, "network.dat"))
+	adj = convert(Matrix{Int64}, open(readdlm, "network.dat"))
+	# adj = open(readdlm, "network.dat")
 	n = maximum(adj)
 	num_edges = size(adj,1)
 
-	g = simple_graph(n, is_directed=false)
+	g = SimpleGraph(n)
 
 	for i=1:num_edges
 		neighbors = adj[i,:]
@@ -42,11 +44,11 @@ function create_network(n, mu, netfile)
 			add_edge!(g, neighbors[1], neighbors[2])
 		end
 	end
-
-	adj = adjacency_matrix(g) + 0
+	
+	adj = adjacency_matrix(g) 
 	writedlm(netfile, adj, "\t")
-	readall(`rm network.dat`)
-	readall(`rm community.dat`)
+	run(`rm network.dat`)
+	run(`rm community.dat`)
 end
 
 
