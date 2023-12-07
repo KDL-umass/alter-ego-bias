@@ -1,5 +1,5 @@
-source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/experiment-utils.R")
-source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/multiple-account-experiment.R")
+source("alter-ego-bias/experiments/experiment-utils.R")
+source("alter-ego-bias/experiments/multiple-account-experiment.R")
 
 test.config <- function(idx, setting, configs, trials, all=FALSE) { 
   cat("Running", idx, "\n")
@@ -36,13 +36,13 @@ test.config <- function(idx, setting, configs, trials, all=FALSE) {
     bias.behavior.ATE$ego.bias <- bias.behavior.ATE$nonego.ATE - bias.behavior.ATE$ATE.ego.gui
     
     results <- rbind(results, bias.behavior.ATE)
-    write.csv(results, paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/results/new-",setting,"-results-", graph.params$graph.type, "-", outcome.params["lambda_1"], "-", outcome.params["lambda_2"], "-", i, ".csv"))
+    write.csv(results, paste0("alter-ego-bias/results/new-",setting,"-results-", graph.params$graph.type, "-", outcome.params["lambda_1"], "-", outcome.params["lambda_2"], "-", i, ".csv"))
   }
 }
 
 args <- commandArgs(trailingOnly = TRUE)
 idx <- as.integer(args[1])
-configs <- read.csv("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/configs/all_ego_configurations.csv")
+configs <- read.csv("alter-ego-bias/experiments/configs/all_ego_configurations.csv")
 setting <- args[2]
 trials <- as.integer(args[3])
 test.config(idx, setting, configs, trials, FALSE)

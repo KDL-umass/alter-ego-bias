@@ -86,7 +86,7 @@ generate.graph <- function(graph.params) {
   }
 
   if(graph.type == "sbm") { 
-    edg <- read.csv(paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/synthetic/sbms/adj/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
+    edg <- read.csv(paste0("alter-ego-bias/graphs/synthetic/sbms/adj/sbm-", graph.params$n, "-", graph.params$mu, "-", graph.params$ind, "-adj.txt"), sep="\t", header=FALSE)
     edg <- as.matrix(edg)
     g <- graph_from_adjacency_matrix(edg, mode="undirected")
   }
@@ -107,7 +107,7 @@ generate.graph <- function(graph.params) {
   }
   
   if(graph.type == "facebook") { 
-    edg <- read.csv(paste0("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/snap/facebook/facebook_combined.txt"), sep=" ", header=FALSE)
+    edg <- read.csv(paste0("alter-ego-bias/graphs/snap/facebook/facebook_combined.txt"), sep=" ", header=FALSE)
     edg <- as.matrix(edg)+1
     
     graph.params$n <- max(edg)

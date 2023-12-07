@@ -4,8 +4,8 @@ library(expm)
 library(reshape2)
 library(bit)
 
-source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/graph-utils.R")
-source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/experiments/experiment-utils.R")
+source("alter-ego-bias/graphs/graph-utils.R")
+source("alter-ego-bias/experiments/experiment-utils.R")
 
 select.alter.egos <- function(alter.egos, treatment.assignments, setting) {
   egos <- which(alter.egos==1)

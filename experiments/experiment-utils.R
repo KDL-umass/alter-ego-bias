@@ -4,7 +4,7 @@ library(expm)
 library(reshape2)
 library(bit)
 
-source("/work/pi_jensen_umass_edu/kavery_umass_edu/non-cooperative-spillover/graphs/graph-utils.R")
+source("alter-ego-bias/graphs/graph-utils.R")
 
 build.outcome.params <- function(lambda_0, lambda_1, lambda_2, sd.noise) { 
   outcome.params <- list()
