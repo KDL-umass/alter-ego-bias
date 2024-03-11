@@ -1,6 +1,8 @@
 # The Effect of Alter Ego Accounts on A/B Tests in Social Networks
 This repo contains the code for the paper "The Effect of Alter Ego Accounts on A/B Tests in Social Networks." 
 
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.10806591.svg)](http://dx.doi.org/10.5281/zenodo.10806591)
+
 ## Abstract
 
 >Social network users often maintain multiple active accounts, sometimes referred to as *alter egos*. Examples of alter egos include personal and professional accounts or named and anonymous accounts. If alter egos are common on a platform, they can affect the results of A/B testing because a user’s alter egos can influence each other. For a single user, one account may be assigned treatment, while another is assigned control. Alter-ego bias is relevant when the treatment affects the individual user rather than the account. 
