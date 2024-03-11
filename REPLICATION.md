@@ -1,4 +1,4 @@
-This markdown provides instructions for running the experiments in The Effect of Alter Ego Accounts on A/B Tests for Social Networks. 
+This markdown provides instructions for running the experiments in The Effect of Alter Ego Accounts on A/B Tests in Social Networks. 
 
 ## Setup 
 1. Download R for your system: [https://cran.r-project.org/](https://cran.r-project.org/)
@@ -15,7 +15,7 @@ This markdown provides instructions for running the experiments in The Effect of
 2. Create graphs. 
 The forest-fire networks and small-world networks are automatically generated using igraph. SBM adjacency matrices and Facebook edge list are cached in the graphs/ folder.  
 
-The Facebook network edge list can also be downloaded here: https://snap.stanford.edu/data/ego-Facebook.html. 
+The Facebook network edge list can also be downloaded here: https://snap.stanford.edu/data/ego-Facebook.html. Specifically, you will want to download `facebook_combined.txt.gz` and put it in the `graphs/snap/facebook` folder.
 
 If you want to generate the SBMs from scratch, you can install the SBM benchmark algorithm scripts created by Fortunato et al. 
 * Main page: https://www.santofortunato.net/resources#h.p_u6MEEWAKyhN0 (Download package 1)

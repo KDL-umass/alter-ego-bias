@@ -1,5 +1,11 @@
-# The Effect of Alter Ego Accounts on A/B Tests for Social Networks
-This repo contains the code for our work on A/B testing in networks with non-cooperative behavior. 
+# The Effect of Alter Ego Accounts on A/B Tests in Social Networks
+This repo contains the code for the paper "The Effect of Alter Ego Accounts on A/B Tests in Social Networks."
+
+## Abstract
+
+Social network users often maintain multiple active accounts, sometimes referred to as *alter egos*. Examples of alter egos include personal and professional accounts or named and anonymous accounts. If alter egos are common on a platform, they can affect the results of A/B testing because a user’s alter egos can influence each other. For a single user, one account may be assigned treatment, while another is assigned control. Alter-ego bias is relevant when the treatment affects the individual user rather than the account. 
+
+Through experimentation and theoretical analysis, we examine the worst and expected case bias for different numbers of alter egos and for a variety of network structures and peer effect strengths. We show that alter egos moderately bias the results of simulated A/B tests on several network structures, including a real-world Facebook subgraph and several types of synthetic networks: small world networks, forest fire networks, stochastic block models, and a worst-case structure. We also show that bias increases with the number of alter egos and that different network structures have different upper bounds on bias.  
 
 ## Run the Experiments
 
@@ -7,11 +13,11 @@ This repo contains the code for our work on A/B testing in networks with non-coo
 
 ## Overview
 Given a network graph and simulation parameters identified in a configuration file, 
-* Cluster-randomized treatment assignment
-* Non-cooperative participant network set construction
-* Outcome simulation per n alter egos up to dominating set
-* Model fit and outcome estimation with linear estimator
-* Bias calculation in sample
+* Cluster-randomize treatment assignment
+* Generate a set of alter egos
+* Simulate the outcomes per N alter egos 
+* Estimate the outcomes with a linear estimator
+* Calculate the bias
 
 #### Experiment Configs
 Options: 
@@ -22,11 +28,10 @@ Options:
 More information is provided in  [this README](experiments/configs/README.md).
 
 #### Network Graph Resources
-We provide some existing graph structures for the experiments:
 * **Synthetic Corpus**:
 We provide a corpus of graph types used for the simulation studies in the paper, generated under the same set of parameters. 
 * **Real-World**:
-We use networks released in the SNAP Library. 
+We use a real-world network released in the SNAP Library, which can be found here: https://snap.stanford.edu/data/ego-Facebook.html.  
 
 Alternatively, run the scripts used to generate graphs in the corpus to generate new graphs. 
 More details at [this README](REPLICATION.md).
